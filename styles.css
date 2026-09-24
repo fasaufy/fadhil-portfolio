@@ -1,0 +1,583 @@
+/* ---------- Reset & base ---------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #0b0a09;
+}
+img { max-width: none; display: block; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+:root {
+  --transition-duration: 650ms;
+  --transition-ease: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ---------- App shell & wall backdrops ---------- */
+
+#app.gallery {
+  position: fixed;
+  inset: 0;
+  width: 100dvw;
+  height: 100dvh;
+  overflow: hidden;
+  background: #0b0a09;
+}
+
+.wall-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+}
+.wall-bg.is-active { opacity: 1; }
+
+/* Intro <-> main: the "lights turning on" moment on the SAME physical wall --
+   this one is meant to dissolve. */
+/* 1.5x darker than the base asset -- scoped to this layer only, so it's
+   just the first two (intro) sections that read darker, not the "lights
+   on" wall that follows. */
+.wall-bg--intro { background-image: url('assets/bg-light-off.png'); filter: brightness(calc(1 / 1.5)); transition: opacity 900ms ease; z-index: 0; }
+.wall-bg--main { background-image: url('assets/bg-light-on.png'); transition: opacity 900ms ease; z-index: 1; }
+
+/* Main -> about: a different physical wall, entered through the pillar seam --
+   this one must be a hard, opaque cut (no transition here). In continuous
+   mode its opacity is pinned to 1 by JS and a clip-path (synced to the
+   pillar's on-screen position) draws the hard boundary instead. */
+.wall-bg--about { background-image: url('assets/bg-maroon.png'); z-index: 2; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wall-bg { transition: opacity 400ms ease; }
+}
+body[data-reduced-motion="true"] .wall-bg { transition: opacity 400ms ease; }
+
+.spotlight {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  width: 46vw;
+  height: 46vw;
+  max-width: 640px;
+  max-height: 640px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 250, 235, 0.55) 0%, rgba(255, 250, 235, 0) 70%);
+  opacity: 0;
+  transition: opacity 900ms ease;
+  pointer-events: none;
+  z-index: 1;
+}
+#app[data-active-piece="portrait"] .spotlight { opacity: 1; }
+
+/* ---------- Filmstrip track ---------- */
+
+.filmstrip {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  width: max-content;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.stop {
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+/* Desktop/tablet stage-scales to fit HEIGHT (script.js: stageScale =
+   viewportHeight / 710, matching the Figma desktop canvas's own 710px-tall
+   reference frame) -- stop height must be that same fixed local reference
+   value, not a real viewport unit, or the two would compound and the
+   rendered result wouldn't actually fill the real viewport height. Mobile
+   keeps 100dvh above: its stage scales to fit WIDTH instead, so height stays
+   viewport-native and just vertically centers whatever's shorter than it.
+   .filmstrip's own local height must match .stop's for the same reason --
+   otherwise align-items:stretch centers the (non-stretching, explicitly
+   sized) stop within whatever local slack is left over, and that offset
+   gets amplified by the scale into a large, viewport-size-dependent
+   vertical drift. */
+@media (min-width: 768px) {
+  .filmstrip { height: 710px; }
+  .stop { height: 710px; }
+}
+
+/* width is set inline by script.js (sizeSpacers) to the track's local
+   viewport-width equivalent, so it renders full-bleed after the stage
+   scale is applied -- flex-basis must stay auto so that width wins. */
+.beat { flex: 0 0 auto; width: 100vw; }
+
+.beat-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.scene {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 300px;
+}
+
+.spacer { flex: 0 0 auto; height: 1px; width: 0; }
+
+.piece-box { position: relative; flex: 0 0 auto; }
+
+/* Invisible on desktop -- its children stay direct flex items of the scene,
+   exactly as if this wrapper weren't there. Mobile turns it into a real,
+   horizontally-scrollable box (see the mobile media query below). */
+.mobile-scroll-group { display: contents; }
+
+/* ---------- Room seam: threshold between the gallery and the maroon room ---------- */
+
+.room-seam {
+  position: relative;
+  flex: 0 0 240px;
+  width: 240px;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.room-seam__pillar {
+  height: 95dvh;
+  width: auto;
+  aspect-ratio: 157 / 730;
+  object-fit: contain;
+}
+
+/* ---------- Shared "on the wall" text styles ---------- */
+
+.project-title, .project-meta, .project-desc,
+.reveal-copy .role, .reveal-copy .tagline,
+.bio-name, .bio-paragraphs, .bio-tools,
+.timeline-header, .timeline-dates, .timeline-title, .timeline-company, .timeline-desc,
+.timeline-closer__text, .resume-contact, .about-cta { color: inherit; }
+
+.project-title { margin: 0; font-size: 16px; font-weight: 400; line-height: 1.6; }
+.project-notes { display: flex; flex-direction: column; gap: 8px; }
+.project-meta { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; }
+.project-desc { margin: 0; font-size: 12px; line-height: 1.6; }
+.project-desc .project-proof { font-style: normal; }
+.project-desc .project-proof.weight-medium { font-weight: 500; }
+.project-desc .project-proof.weight-semibold { font-weight: 600; }
+.project-desc .project-proof.weight-bold { font-weight: 700; }
+
+/* ---------- Piece: self-portrait / name reveal ---------- */
+
+.piece--portrait .piece-box { width: 620px; height: 397.547px; }
+.piece--portrait .frame--portrait {
+  position: absolute; left: 0; top: 0; width: 200px; height: 200px;
+}
+.reveal-copy {
+  position: absolute;
+  left: 410px; top: 325.27px;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+.reveal-copy .wordmark { width: 250.719px; height: 42.547px; }
+.reveal-copy .role, .reveal-copy .tagline { margin: 0; font-size: 16px; line-height: 1.6; }
+
+/* ---------- Piece: project (Wave, CyberKongz, Touchbiz, Ballogy, Mantis) ---------- */
+
+.project-copy { position: absolute; left: 0; width: 228px; }
+.frame-cluster { position: absolute; inset: 0; }
+
+[data-project] .project-copy { transform: translateY(-50%); }
+
+[data-project="wave"] .piece-box { width: 1042.516px; height: 482px; }
+[data-project="wave"] .project-copy { top: 244.5px; }
+[data-project="wave"] .frame:nth-of-type(1) { left: 515px; top: 68px; width: 527.516px; height: 414px; }
+[data-project="wave"] .frame:nth-of-type(2) { left: 313.75px; top: 199px; width: 189.246px; height: 175.483px; }
+[data-project="wave"] .frame:nth-of-type(3) { left: 241px; top: 0; width: 262px; height: 183.041px; }
+
+[data-project="cyberkongz"] .piece-box { width: 1038px; height: 510px; }
+[data-project="cyberkongz"] .project-copy { top: 246px; width: 237px; }
+[data-project="cyberkongz"] .frame:nth-of-type(1) { left: 643px; top: 200px; width: 395px; height: 310px; }
+[data-project="cyberkongz"] .frame:nth-of-type(2) { left: 400px; top: 301px; width: 227px; height: 209px; }
+[data-project="cyberkongz"] .frame:nth-of-type(3) { left: 365px; top: 65px; width: 262px; height: 214px; }
+[data-project="cyberkongz"] .frame:nth-of-type(4) { left: 643px; top: 0; width: 169px; height: 183px; }
+
+[data-project="touchbiz"] .piece-box { width: 1004px; height: 509.041px; }
+[data-project="touchbiz"] .project-copy { top: 293.5px; }
+[data-project="touchbiz"] .frame:nth-of-type(1) { left: 331px; top: 199.04px; width: 395px; height: 310px; }
+[data-project="touchbiz"] .frame:nth-of-type(2) { left: 250px; top: 26px; width: 198px; height: 155px; }
+[data-project="touchbiz"] .frame:nth-of-type(3) { left: 742px; top: 304px; width: 200px; height: 183px; }
+[data-project="touchbiz"] .frame:nth-of-type(4) { left: 464px; top: 0; width: 262px; height: 183.041px; }
+[data-project="touchbiz"] .frame:nth-of-type(5) { left: 742px; top: 26px; width: 262px; height: 262px; }
+
+[data-project="ballogy"] .piece-box { width: 1048px; height: 517px; }
+[data-project="ballogy"] .project-copy { top: 246.5px; }
+[data-project="ballogy"] .frame:nth-of-type(1) { left: 568.5px; top: 0; width: 395px; height: 310px; transform: translateX(-50%); }
+[data-project="ballogy"] .frame:nth-of-type(2) { left: 781px; top: 198px; width: 267px; height: 196px; }
+[data-project="ballogy"] .frame:nth-of-type(3) { left: 781px; top: 0; width: 262px; height: 183.041px; }
+[data-project="ballogy"] .frame:nth-of-type(4) { left: 464px; top: 325px; width: 302px; height: 192px; }
+
+[data-project="mantis"] .piece-box { width: 1052px; height: 358px; }
+[data-project="mantis"] .project-copy { top: 170px; }
+[data-project="mantis"] .frame:nth-of-type(1) { left: 580.5px; top: 48px; width: 395px; height: 310px; transform: translateX(-50%); }
+[data-project="mantis"] .frame:nth-of-type(2) { left: 790px; top: 0; width: 262px; height: 183.041px; }
+
+/* ---------- Frame / picture-mat treatment ---------- */
+
+.frame { position: absolute; display: block; }
+.frame:disabled { cursor: default; }
+
+.frame__mat {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 6px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f4f1ea 0%, #e9e4d8 100%);
+}
+.frame__mat::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  box-shadow: inset 0 1px 3px 0 rgba(168, 163, 158, 0.5);
+}
+.frame__img, .frame__placeholder {
+  position: absolute;
+  inset: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  object-fit: cover;
+  background: #ffffff;
+  opacity: 0;
+  transition: opacity 400ms ease, box-shadow 250ms ease;
+}
+.frame__placeholder { opacity: 1; }
+.frame.has-image .frame__img { opacity: 1; }
+.frame.has-image .frame__placeholder { opacity: 0; }
+
+/* Hover/focus lifts only the photo itself -- the mat/frame border stays put. */
+.frame:hover .frame__img, .frame:hover .frame__placeholder,
+.frame:focus-visible .frame__img, .frame:focus-visible .frame__placeholder {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+.frame:disabled:hover .frame__img, .frame:disabled:hover .frame__placeholder,
+.frame:disabled:focus-visible .frame__img, .frame:disabled:focus-visible .frame__placeholder {
+  box-shadow: none;
+}
+
+/* Maroon-room mat variant, used throughout the "about" scene */
+.scene--about .frame__mat {
+  background: #632d2e;
+}
+.scene--about .frame__mat::after {
+  box-shadow: inset 0 1px 3px 0 rgba(46, 15, 13, 0.5);
+}
+.scene--about .frame__placeholder { background: #7a3a3b; }
+
+/* ---------- Scene colour + type theming ---------- */
+
+.beat[data-scene="intro"] { color: #280a08; }
+.scene--main { color: #280a08; }
+.scene--about { color: #fff2e2; }
+
+/* ---------- Piece: about / CTA ---------- */
+
+.piece--cta .piece-box { width: 228px; text-align: center; }
+.about-cta { display: flex; flex-direction: column; gap: 8px; }
+.about-cta p { margin: 0; font-size: 12px; line-height: 1.6; }
+.about-cta .cta-headline { font-weight: 600; }
+.about-cta a { color: inherit; text-decoration-thickness: from-font; }
+
+/* ---------- Piece: bio ---------- */
+
+.piece--bio .piece-box { width: 869px; height: 523px; }
+.bio-note { position: absolute; left: 0; top: 231px; width: 299px; display: flex; flex-direction: column; gap: 8px; }
+.bio-name { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; }
+.bio-paragraphs p { margin: 0 0 1.6em 0; font-size: 12px; line-height: 1.6; }
+.bio-paragraphs p:last-child { margin-bottom: 0; }
+
+.bio-photos .frame:nth-of-type(1) { left: 448.87px; top: 97px; width: 189.246px; height: 175.483px; transform: translateX(-50%); }
+.bio-photos .frame:nth-of-type(2) { left: 649.62px; top: 12px; width: 189.246px; height: 175.483px; transform: translateX(-50%); }
+.bio-photos .frame:nth-of-type(3) { left: 615px; top: 204px; width: 120px; height: 120px; transform: translateX(-50%); }
+.bio-photos .frame:nth-of-type(4) { left: 778px; top: 204px; width: 182px; height: 257px; transform: translateX(-50%); }
+.bio-photos .frame:nth-of-type(5) { left: 171px; top: 0; width: 342px; height: 187px; transform: translateX(-50%); }
+
+.bio-tools { position: absolute; left: 0; top: 447px; width: 291px; }
+.bio-tools p { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; }
+.bio-tools .tools-lines { font-weight: 400; }
+
+/* ---------- Piece: timeline ---------- */
+
+.piece--timeline .piece-box { width: 1611px; display: flex; align-items: flex-start; gap: 100px; }
+.timeline-header { margin: 0; flex: 0 0 auto; font-size: 12px; font-weight: 600; line-height: 1.6; white-space: nowrap; }
+.timeline-body { display: flex; align-items: flex-start; gap: 40px; flex: 0 0 auto; }
+
+.timeline-entries { flex: 0 0 1217px; width: 1217px; min-width: 0; display: flex; flex-direction: row; gap: 24px; }
+.timeline-entries__group { display: contents; }
+.timeline-entry { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.timeline-dates { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; }
+.timeline-entry__heading { display: flex; flex-direction: column; gap: 4px; }
+.timeline-title { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.2; }
+.timeline-company { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; }
+.timeline-desc { margin: 0; font-size: 12px; font-weight: 400; line-height: 1.6; }
+
+.timeline-closer { flex: 0 0 205px; width: 205px; display: flex; flex-direction: column; gap: 32px; }
+.timeline-closer__text { display: flex; flex-direction: column; }
+.timeline-closer__label { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; }
+.timeline-closer__line { margin: 0 0 1.6em 0; font-size: 12px; font-weight: 400; line-height: 1.6; }
+.timeline-closer__line:last-child { margin-bottom: 0; }
+
+.timeline-closer__photos {
+  display: grid;
+  grid-template-columns: 108px 89px;
+  grid-template-rows: 112px 74px;
+  gap: 8px;
+}
+.timeline-closer__photos .frame:nth-of-type(1) { position: static; grid-column: 1; grid-row: 1; width: 108px; height: 112px; }
+.timeline-closer__photos .frame:nth-of-type(2) { position: static; grid-column: 2; grid-row: 1; justify-self: start; width: 89px; height: 74px; }
+.timeline-closer__photos .frame:nth-of-type(3) { position: static; grid-column: 1; grid-row: 2; justify-self: start; width: 89px; height: 74px; }
+
+/* ---------- Piece: resume + contact ---------- */
+
+.resume-contact { display: flex; flex-direction: column; gap: 24px; }
+.resume-contact__item { display: flex; flex-direction: column; gap: 8px; }
+.resume-contact__label { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; }
+.resume-contact__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 6px 10px 6px 12px;
+  border: 1px solid currentColor;
+  color: inherit;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: nowrap;
+  transition: background 200ms ease;
+}
+.resume-contact__button:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* ---------- Nav pill (prev/next) & mobile peek cue ---------- */
+
+.nav-pill {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 1000px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 10px 3px rgba(166, 162, 155, 0.05),
+    0 5px 2.5px rgba(166, 162, 155, 0.09),
+    0 1px 1px rgba(166, 162, 155, 0.1);
+}
+
+.nav-arrow {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  border: 0.7px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 0.7px 1.4px rgba(0, 0, 0, 0.04),
+    0 2.8px 2.8px rgba(0, 0, 0, 0.04),
+    0 11px 11px rgba(0, 0, 0, 0.06);
+  transition: background 200ms ease, opacity 200ms ease;
+}
+.nav-arrow img { display: block; width: 16px; height: 16px; }
+.nav-arrow:hover { background: rgba(255, 255, 255, 0.9); }
+.nav-arrow:disabled { opacity: 0.3; pointer-events: none; }
+
+.mobile-peek {
+  display: none;
+  position: fixed;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: inherit;
+  opacity: 0.7;
+}
+.mobile-peek__arrow { font-size: 22px; animation: peek-nudge 1.6s ease-in-out infinite; }
+.mobile-peek__label { font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; writing-mode: vertical-rl; }
+@keyframes peek-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+#app[data-at-end="true"] .mobile-peek { opacity: 0; }
+
+/* ---------- Lightbox ---------- */
+
+.lightbox { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; }
+.lightbox[hidden] { display: none; }
+.lightbox__backdrop { position: absolute; inset: 0; background: rgba(10, 9, 8, 0.85); }
+.lightbox__content {
+  position: relative; z-index: 1; margin: 0;
+  max-width: min(88vw, 1100px); max-height: 82dvh;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.lightbox__img { max-width: 100%; max-height: 74dvh; width: auto; height: auto; object-fit: contain; background: #efeeea; }
+.lightbox__caption { color: #efeeea; font-size: 13px; text-align: center; }
+.lightbox__close {
+  position: absolute; top: -42px; right: 0; z-index: 2;
+  color: #efeeea; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; padding: 8px 4px;
+}
+.lightbox__close:hover { text-decoration: underline; }
+
+/* ============================================================
+   MOBILE (< 1024px): abandon the salon-wall canvas entirely.
+   Every stop becomes a full-viewport, vertically-flowing card.
+   ============================================================ */
+
+/* Mobile only (< MOBILE_BREAKPOINT in script.js). Tablet (768-1023px) has no
+   dedicated Figma canvas, so it deliberately falls through to desktop's own
+   unconditional CSS below, scaled like desktop -- see script.js's three-tier
+   comment above CONTINUOUS mode for the full breakdown. */
+@media (max-width: 767px) {
+  .piece-box { display: flex; flex-direction: column; gap: 40px; }
+
+  /* self-portrait -- part of the continuous gallery strip on mobile (per the
+     Figma mobile frame), a compact signature card rather than desktop's
+     dramatic centered reveal: 100x100 photo above a short heading block. */
+  .piece--portrait .piece-box { width: 218px; height: 286.0375px; }
+  .piece--portrait .frame--portrait { position: absolute; left: 0; top: 0; width: 100px; height: 100px; }
+  .reveal-copy {
+    position: absolute; left: 0; top: 124px; transform: none; width: 218px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 24px;
+  }
+  .reveal-copy .wordmark { width: 200.575px; height: 34.037px; }
+
+  /* ---------- the main gallery and the about section (cta, bio, timeline,
+     resume) flow as part of ONE continuous strip, driven by the same
+     drag/scroll physics as desktop (see script.js's continuous mode) --
+     .mobile-scroll-group stays a transparent passthrough, exactly like on
+     desktop, instead of its own separately-scrollable page. ---------- */
+
+  /* project pieces -- same asymmetric photo clusters as desktop, at the
+     smaller scale and positions from the mobile Figma frame */
+  .mobile-scroll-group .project-copy { top: 50%; width: 175px; }
+
+  [data-project="wave"] .piece-box { width: 722.516px; height: 290.166px; }
+  [data-project="wave"] .frame:nth-of-type(1) { left: 404.95px; top: 40.94px; width: 317.567px; height: 249.23px; }
+  [data-project="wave"] .frame:nth-of-type(2) { left: 283.8px; top: 119.8px; width: 113.927px; height: 105.641px; }
+  [data-project="wave"] .frame:nth-of-type(3) { left: 240px; top: 0; width: 157.725px; height: 110.192px; }
+
+  [data-project="cyberkongz"] .piece-box { width: 771.484px; height: 388.361px; }
+  [data-project="cyberkongz"] .frame:nth-of-type(1) { left: 470.69px; top: 152.3px; width: 300.789px; height: 236.062px; }
+  [data-project="cyberkongz"] .frame:nth-of-type(2) { left: 285.65px; top: 229.21px; width: 172.859px; height: 159.152px; }
+  [data-project="cyberkongz"] .frame:nth-of-type(3) { left: 259px; top: 49.5px; width: 199.511px; height: 162.959px; }
+  [data-project="cyberkongz"] .frame:nth-of-type(4) { left: 470.69px; top: 0; width: 128.692px; height: 139.353px; }
+
+  [data-project="touchbiz"] .piece-box { width: 882.758px; height: 442.041px; }
+  [data-project="touchbiz"] .frame:nth-of-type(1) { left: 298.34px; top: 172.84px; width: 343.01px; height: 269.198px; }
+  [data-project="touchbiz"] .frame:nth-of-type(2) { left: 228px; top: 22.58px; width: 171.939px; height: 134.599px; }
+  [data-project="touchbiz"] .frame:nth-of-type(3) { left: 655.24px; top: 263.99px; width: 173.676px; height: 158.914px; }
+  [data-project="touchbiz"] .frame:nth-of-type(4) { left: 413.83px; top: 0; width: 227.516px; height: 158.949px; }
+  [data-project="touchbiz"] .frame:nth-of-type(5) { left: 655.24px; top: 22.58px; width: 227.516px; height: 227.516px; }
+
+  [data-project="ballogy"] .piece-box { width: 793.6px; height: 413.6px; }
+  [data-project="ballogy"] .frame:nth-of-type(1) { left: 410px; top: 0; width: 316px; height: 248px; }
+  [data-project="ballogy"] .frame:nth-of-type(2) { left: 580px; top: 158.4px; width: 213.6px; height: 156.8px; }
+  [data-project="ballogy"] .frame:nth-of-type(3) { left: 580px; top: 0; width: 209.6px; height: 146.433px; }
+  [data-project="ballogy"] .frame:nth-of-type(4) { left: 326.4px; top: 260px; width: 241.6px; height: 153.6px; }
+
+  [data-project="mantis"] .piece-box { width: 788.6px; height: 286.4px; }
+  [data-project="mantis"] .frame:nth-of-type(1) { left: 411px; top: 38.4px; width: 316px; height: 248px; }
+  [data-project="mantis"] .frame:nth-of-type(2) { left: 579px; top: 0; width: 209.6px; height: 146.433px; }
+
+  /* about: bio -- same salon-wall cluster as desktop, mobile Figma positions */
+  .piece--bio .piece-box { width: 967.1996px; height: 395.8999px; }
+  .bio-note { top: 59.9px; width: 206px; }
+  .bio-tools { top: 300.9px; width: 206px; }
+  .bio-photos .frame:nth-of-type(1) { left: 555.4px; top: 77.6px; width: 151.4px; height: 140.39px; transform: none; }
+  .bio-photos .frame:nth-of-type(2) { left: 716px; top: 9.6px; width: 151.4px; height: 140.39px; transform: none; }
+  .bio-photos .frame:nth-of-type(3) { left: 716px; top: 163.2px; width: 96px; height: 96px; transform: none; }
+  .bio-photos .frame:nth-of-type(4) { left: 821.6px; top: 163.2px; width: 145.6px; height: 205.6px; transform: none; }
+  .bio-photos .frame:nth-of-type(5) { left: 272px; top: 0; width: 273.6px; height: 149.6px; transform: none; }
+
+  /* about: timeline + resume -- unchanged from desktop's own card layout,
+     now reached by scrolling through the same about group instead of their
+     own full-screen stops. Still reorder group 2 to Sixty Two, then
+     Formulatrix, then the closing line. */
+  .timeline-entries__group:nth-of-type(2) .timeline-entry:nth-of-type(1) { order: 2; } /* Formulatrix */
+  .timeline-entries__group:nth-of-type(2) .timeline-entry:nth-of-type(2) { order: 1; } /* Sixty Two */
+  .timeline-entries__group:nth-of-type(2) .timeline-entry:nth-of-type(3) { order: 3; } /* Earlier */
+
+  /* room seam: kept as an invisible threshold between the gallery and the
+     maroon room (its width still paces the scroll, and script.js tracks its
+     position to draw the wall hard-cut) -- just without the pillar image. */
+  .room-seam { flex: 0 0 177px; width: 177px; }
+  .room-seam__pillar { visibility: hidden; }
+
+  .nav-pill { display: none; }
+  .mobile-peek { display: flex; }
+}
+
+/* ---------- Reduced motion: simple vertical fallback ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  #app.gallery { position: static; height: auto; overflow: visible; }
+  .filmstrip { display: block; width: 100%; height: auto; transform: none !important; }
+  .scene { display: block; }
+  .stop { width: 100%; height: auto; min-height: 100dvh; }
+  .frame__img, .frame__placeholder { transition: none; box-shadow: none !important; }
+  .room-seam { display: none; }
+
+  /* Reduced motion always gets the plain stacked fallback, even on a narrow
+     screen that would otherwise use the horizontally-scrollable groups and
+     their absolute-positioned salon-wall clusters. */
+  .mobile-scroll-group { display: contents; }
+  .mobile-scroll-group .stop { width: 100%; height: auto; padding: 8dvh 6vw 10dvh; overflow-y: auto; }
+  [data-project] .piece-box, .piece--bio .piece-box {
+    width: 100% !important; height: auto !important;
+  }
+  .project-copy { position: static !important; top: auto; width: 100%; transform: none !important; }
+  .frame-cluster { position: static; inset: auto; display: flex; flex-wrap: wrap; gap: 12px; }
+  .frame-cluster .frame {
+    position: static !important; left: auto !important; top: auto !important;
+    width: auto !important; height: auto !important; transform: none !important; aspect-ratio: 4 / 3;
+  }
+  .bio-note, .bio-tools { position: static !important; top: auto; width: 100%; }
+  .bio-photos { position: static; display: flex; flex-wrap: wrap; gap: 12px; }
+  .bio-photos .frame {
+    position: static !important; left: auto !important; top: auto !important;
+    width: auto !important; height: auto !important; transform: none !important; aspect-ratio: 1 / 1;
+  }
+
+  /* timeline now uses desktop's own fixed-width card row unconditionally --
+     force it back to a simple stacked list here too */
+  .piece--timeline .piece-box { width: 100% !important; flex-direction: column !important; gap: 24px !important; }
+  .timeline-body, .timeline-entries { flex-direction: column !important; gap: 24px !important; }
+  .timeline-entry { flex: 0 0 auto !important; width: 100% !important; }
+  .timeline-closer { width: 100% !important; flex: 0 0 auto !important; }
+}
+
+body[data-reduced-motion="true"] .filmstrip { display: block; width: 100%; height: auto; transform: none !important; }
+body[data-reduced-motion="true"] .scene { display: block; }
+body[data-reduced-motion="true"] #app.gallery { position: static; height: auto; overflow: visible; }
+body[data-reduced-motion="true"] .stop { width: 100%; height: auto; min-height: 100dvh; }
+body[data-reduced-motion="true"] .room-seam { display: none; }

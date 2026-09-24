@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "email": "pfadhily@gmail.com",
+    "resumeUrl": "https://drive.google.com/file/d/1oC-bTqMtkw4r18NW8W35n74yFBhxxneX/view"
+  },
+
+  "intro1": { "text": "Scroll to begin." },
+  "intro2": { "text": "The lights are off. Scroll to turn them on." },
+
+  "main": {
+    "selfPortrait": {
+      "photo": { "src": "assets/self-portrait.jpg", "alt": "Fadhil Yassar" },
+      "wordmark": { "src": "assets/wordmark-fadhil-yassar.svg", "alt": "Fadhil Yassar" },
+      "role": "Product Designer",
+      "tagline": "Selected work, 2019–present. Five pieces. Scroll to walk through them."
+    },
+    "projects": [
+      {
+        "id": "wave",
+        "title": "Wave",
+        "meta": "Product Design, Branding · Late Checkout",
+        "description": "An AI tool that turns recorded conversation into searchable memory. Designed the core chat experience, brand system, and interface end to end.",
+        "proof": "Reached $4M ARR in 8 months.",
+        "proofWeight": "semibold",
+        "images": [
+          { "src": "assets/wave-wave ai chat.jpg", "alt": "Wave — primary interface screen" },
+          { "src": "assets/wave-web homepage.jpg", "alt": "Wave — supporting detail" },
+          { "src": "assets/wave-branding.jpg", "alt": "Wave — supporting detail" }
+        ]
+      },
+      {
+        "id": "cyberkongz",
+        "title": "CyberKongz",
+        "meta": "Product Design, UX · Sixty Two",
+        "description": "A mobile app for a Web3 gaming ecosystem — 2D/3D avatars, a utility token, a metaverse layer. Designed the full mobile experience.",
+        "proof": "Best UX, Best UI, Best Innovation — CSS Design Awards 2023.",
+        "proofWeight": "bold",
+        "images": [
+          { "src": "assets/CK-homepage.png", "alt": "CyberKongz — primary interface screen" },
+          { "src": "assets/CK-kongz detail page.png", "alt": "CyberKongz — supporting detail" },
+          { "src": "assets/CK-kongz library.png", "alt": "CyberKongz — supporting detail" },
+          { "src": "assets/CK-leaderboard.png", "alt": "CyberKongz — supporting detail" }
+        ]
+      },
+      {
+        "id": "touchbiz",
+        "title": "Touchbiz",
+        "meta": "Product Design, Design Systems · Sixty Two",
+        "description": "A digital banking platform for Indonesian SMEs — loans, transfers, and multi-level approvals made legible. Owned the UI design and design system for the mobile app; UX and IA direction led by a senior designer.",
+        "proof": "Design system scaled across both individual and business account types.",
+        "proofWeight": "medium",
+        "images": [
+          { "src": "assets/touchbiz-phone.jpg", "alt": "Touchbiz — mobile app" },
+          { "src": "assets/Touchbiz-dashboard.jpg", "alt": "Touchbiz — web dashboard" },
+          { "src": "assets/touchbiz-transfer.jpg", "alt": "Touchbiz — transfer flow" },
+          { "src": "assets/button.jpg", "alt": "Touchbiz — button states" },
+          { "src": "assets/touchbiz-components.png", "alt": "Touchbiz — UI component sheet" }
+        ]
+      },
+      {
+        "id": "ballogy",
+        "title": "Ballogy",
+        "meta": "Product Design, UX Strategy · DesignMe",
+        "description": "A 300K+ user sports app rebuilt around three distinct roles — player, coach, parent — instead of one generic experience. Directed the UI visual direction and the high-level UX: information architecture and flow. Interface execution shared with a fellow senior designer.",
+        "proof": "$17.2M raised · partnership ongoing since 2025.",
+        "proofWeight": "medium",
+        "images": [
+          { "src": "assets/ballogy-home design exploration.png", "alt": "Ballogy — primary interface screen" },
+          { "src": "assets/ballogy-widget.png", "alt": "Ballogy — supporting detail" },
+          { "src": "assets/ballogy-card design.png", "alt": "Ballogy — supporting detail" },
+          { "src": "assets/ballogy-information architecture.png", "alt": "Ballogy — supporting detail" }
+        ]
+      },
+      {
+        "id": "mantis",
+        "title": "Mantis",
+        "meta": "UX Design · Formulatrix",
+        "description": "A liquid-handling instrument for life-science labs, used by Pfizer and Synlab. Interface designed to turn dense scientific data into guided, error-proof workflows.",
+        "proof": "Unit sales grew from 132 to 381 over two years.",
+        "proofWeight": "medium",
+        "images": [
+          { "src": "assets/mantis.jpg", "alt": "Mantis — primary interface screen" },
+          { "src": "assets/mantis-thumbnails.jpg", "alt": "Mantis — supporting detail" }
+        ]
+      }
+    ]
+  },
+
+  "about": {
+    "cta": {
+      "lines": [
+        "Want the full story behind any of these?",
+        "Email me: pfadhily@gmail.com and I'll walk you through the process.",
+        "Keep scrolling to learn who's behind the work →"
+      ]
+    },
+    "bio": {
+      "name": "Fadhil Yassar",
+      "paragraphs": [
+        "Product Designer, currently remote. Open to relocating within Europe for the right opportunity, with visa sponsorship.",
+        "Trained in nuclear engineering before moving into design. Been building digital products since 2019, mostly for domains with real constraints: banking, AI tools, medical hardware."
+      ],
+      "photos": [
+        { "src": "assets/me-05.png", "alt": "Fadhil Yassar — personal photo" },
+        { "src": "assets/me-04.png", "alt": "Fadhil Yassar — personal photo" },
+        { "src": "assets/me-03.png", "alt": "Fadhil Yassar — personal photo" },
+        { "src": "assets/me-02.png", "alt": "Fadhil Yassar — personal photo" },
+        { "src": "assets/me-01.png", "alt": "Fadhil Yassar — personal photo" }
+      ],
+      "tools": {
+        "label": "My Tool Stacks:",
+        "lines": [
+          "Figma, Illustrator, Framer.",
+          "Claude and Gemini, for prototyping speed, research findings and defining the PRD."
+        ]
+      }
+    },
+    "timeline": {
+      "header": "Timeline",
+      "entries": [
+        {
+          "dates": "Nov 2025–Present",
+          "title": "Visual Designer",
+          "companyLocation": "Offgrid · Remote",
+          "description": "High-end visual and product work for startups, in collaboration with Fons Mans. Notable: Recall AI (brand and web), Smooth Media (concept to launch)."
+        },
+        {
+          "dates": "May 2025–Present",
+          "title": "Senior Product Designer",
+          "companyLocation": "DesignMe · Remote",
+          "description": "End-to-end design across three 0-to-1 MVPs in one year: sport, fintech, consumer travel."
+        },
+        {
+          "dates": "May 2023–May 2025",
+          "title": "Product Designer",
+          "companyLocation": "Late Checkout · Remote",
+          "description": "Led Wave and 1 Second Everyday, end to end."
+        },
+        {
+          "dates": "Aug 2019–Nov 2021",
+          "title": "UX Designer",
+          "companyLocation": "Formulatrix · Onsite, Salatiga",
+          "description": "Led Mantis, laboratory robotics software."
+        },
+        {
+          "dates": "Dec 2021–May 2023",
+          "title": "Product Designer",
+          "companyLocation": "Sixty Two · Remote",
+          "description": "Touchbiz & CyberKongz: owned the UI design and design system, working under a senior designer's UX and IA direction."
+        },
+        {
+          "dates": "2019–2021",
+          "description": "Illustration and community design work for Suka Salatiga and GIZ."
+        }
+      ],
+      "closer": {
+        "items": [
+          { "label": "Before design:", "text": "basketball, through high school and university." },
+          { "label": "Off the clock now:", "text": "hiking and photography. Exploring places. most of the places are hidden gems." }
+        ],
+        "photos": [
+          { "src": "assets/photography-swiss alps.jpg", "alt": "Photography — Switzerland, alpine lake" },
+          { "src": "assets/photography-switzerland.jpg", "alt": "Photography — Switzerland" },
+          { "src": "assets/photography-sunset at telomoyo.jpg", "alt": "Photography — sunset at Telomoyo" }
+        ]
+      }
+    },
+    "resumeContact": {
+      "resume": { "label": "Resume", "buttonText": "See link here" },
+      "contact": { "label": "Say hi", "buttonText": "email me" }
+    }
+  }
+}

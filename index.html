@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fadhil Yassar — Product Designer</title>
+<meta name="description" content="Selected product design work, 2019–present, and the story behind it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app" class="gallery" data-scene="intro" data-motion="auto">
+
+  <div class="wall-bg wall-bg--intro" data-bg="intro" aria-hidden="true"></div>
+  <div class="wall-bg wall-bg--main" data-bg="main" aria-hidden="true"></div>
+  <div class="wall-bg wall-bg--about" data-bg="about" aria-hidden="true"></div>
+  <div class="spotlight" aria-hidden="true"></div>
+
+  <div class="nav-pill">
+    <button type="button" class="nav-arrow nav-arrow--prev" aria-label="Back">
+      <img src="assets/nav-arrow-prev.svg" alt="" width="16" height="16">
+    </button>
+    <button type="button" class="nav-arrow nav-arrow--next" aria-label="Continue">
+      <img src="assets/nav-arrow-next.svg" alt="" width="16" height="16">
+    </button>
+  </div>
+
+  <main id="track" class="filmstrip" aria-label="Portfolio walkthrough">
+
+    <section class="stop beat" data-kind="beat" data-scene="intro" data-bg="intro" aria-label="Introduction">
+      <p class="beat-text" id="intro1-text"></p>
+    </section>
+
+    <section class="stop beat" data-kind="beat" data-scene="intro" data-bg="intro" aria-label="Introduction, continued">
+      <p class="beat-text" id="intro2-text"></p>
+    </section>
+
+    <div class="scene scene--main" data-scene="main">
+      <span class="spacer spacer--lead" aria-hidden="true"></span>
+
+      <section class="stop piece piece--portrait" data-kind="piece" data-scene="main" data-bg="main" aria-label="Fadhil Yassar, Product Designer">
+        <div class="piece-box">
+          <button type="button" class="frame frame--portrait" data-full="" data-alt="">
+            <span class="frame__mat">
+              <img class="frame__img" alt="" loading="lazy" decoding="async">
+            </span>
+          </button>
+          <div class="reveal-copy">
+            <img class="wordmark" src="assets/wordmark-fadhil-yassar.svg" alt="Fadhil Yassar" width="251" height="43">
+            <p class="role" id="reveal-role"></p>
+            <p class="tagline" id="reveal-tagline"></p>
+          </div>
+        </div>
+      </section>
+
+      <div class="mobile-scroll-group" id="projects-scroll-group">
+        <!-- Wave, CyberKongz, Touchbiz, Ballogy, Mantis rendered here by script.js -->
+      </div>
+
+      <span class="spacer spacer--trail" aria-hidden="true"></span>
+    </div>
+
+    <div class="room-seam" aria-hidden="true">
+      <img class="room-seam__pillar" src="assets/pillar.png" alt="">
+    </div>
+
+    <div class="scene scene--about" data-scene="about">
+      <span class="spacer spacer--lead" aria-hidden="true"></span>
+
+      <div class="mobile-scroll-group">
+        <section class="stop piece piece--cta" data-kind="piece" data-scene="about" data-bg="about" aria-label="Get in touch">
+          <div class="piece-box" id="about-cta"></div>
+        </section>
+
+        <section class="stop piece piece--bio" data-kind="piece" data-scene="about" data-bg="about" aria-label="About Fadhil">
+          <div class="piece-box">
+            <div class="bio-note">
+              <p class="bio-name" id="bio-name"></p>
+              <div class="bio-paragraphs" id="bio-paragraphs"></div>
+            </div>
+            <div class="bio-photos" id="bio-photos"></div>
+            <div class="bio-tools" id="bio-tools"></div>
+          </div>
+        </section>
+
+        <section class="stop piece piece--timeline" data-kind="piece" data-scene="about" data-bg="about" aria-label="Timeline">
+          <div class="piece-box h-scroll">
+            <p class="timeline-header" id="timeline-header"></p>
+            <div class="timeline-body">
+              <div class="timeline-entries" id="timeline-entries">
+                <div class="timeline-entries__group" id="timeline-entries-group-1"></div>
+                <div class="timeline-entries__group" id="timeline-entries-group-2"></div>
+              </div>
+              <div class="timeline-closer">
+                <div class="timeline-closer__text" id="timeline-closer-text"></div>
+                <div class="timeline-closer__photos" id="timeline-closer-photos"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="stop piece piece--resume" data-kind="piece" data-scene="about" data-bg="about" aria-label="Resume and contact">
+          <div class="piece-box">
+            <div class="resume-contact" id="resume-contact"></div>
+          </div>
+        </section>
+      </div>
+
+      <span class="spacer spacer--trail" aria-hidden="true"></span>
+    </div>
+
+  </main>
+
+  <div class="mobile-peek" aria-hidden="true">
+    <span class="mobile-peek__arrow">›</span>
+    <span class="mobile-peek__label">Swipe to keep going</span>
+  </div>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <div class="lightbox__backdrop" data-lightbox-close></div>
+    <figure class="lightbox__content">
+      <button type="button" class="lightbox__close" data-lightbox-close>Close</button>
+      <img class="lightbox__img" id="lightbox-img" src="" alt="">
+      <figcaption class="lightbox__caption" id="lightbox-caption"></figcaption>
+    </figure>
+  </div>
+
+</div>
+
+<template id="tpl-project">
+  <section class="stop piece piece--project" data-kind="piece" data-scene="main" data-project="">
+    <div class="piece-box">
+      <div class="project-copy">
+        <p class="project-title"></p>
+        <div class="project-notes">
+          <p class="project-meta"></p>
+          <p class="project-desc"><span class="project-desc__text"></span> <em class="project-proof"></em></p>
+        </div>
+      </div>
+      <div class="frame-cluster"></div>
+    </div>
+  </section>
+</template>
+
+<template id="tpl-frame">
+  <button type="button" class="frame">
+    <span class="frame__mat">
+      <img class="frame__img" alt="" loading="lazy" decoding="async">
+      <span class="frame__placeholder" aria-hidden="true"></span>
+    </span>
+  </button>
+</template>
+
+<template id="tpl-timeline-entry">
+  <div class="timeline-entry">
+    <p class="timeline-dates"></p>
+    <div class="timeline-entry__heading">
+      <p class="timeline-title"></p>
+      <p class="timeline-company"></p>
+    </div>
+    <p class="timeline-desc"></p>
+  </div>
+</template>
+
+<script src="script.js" defer></script>
+</body>
+</html>
