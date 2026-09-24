@@ -161,6 +161,10 @@ body[data-reduced-motion="true"] .wall-bg { transition: opacity 400ms ease; }
   width: auto;
   aspect-ratio: 157 / 730;
   object-fit: contain;
+  /* Hidden at every breakpoint -- .room-seam itself stays as an invisible
+     spacer (paces the scroll, and script.js tracks its position to draw the
+     main->about wall hard-cut), just without the pillar image on top of it. */
+  visibility: hidden;
 }
 
 /* ---------- Shared "on the wall" text styles ---------- */
@@ -527,9 +531,8 @@ body[data-reduced-motion="true"] .wall-bg { transition: opacity 400ms ease; }
   .timeline-entries__group:nth-of-type(2) .timeline-entry:nth-of-type(2) { order: 1; } /* Sixty Two */
   .timeline-entries__group:nth-of-type(2) .timeline-entry:nth-of-type(3) { order: 3; } /* Earlier */
 
-  /* room seam: kept as an invisible threshold between the gallery and the
-     maroon room (its width still paces the scroll, and script.js tracks its
-     position to draw the wall hard-cut) -- just without the pillar image. */
+  /* room seam: narrower on mobile, matching the mobile Figma frame's pillar
+     spacing (the pillar image itself is hidden at every breakpoint, above). */
   .room-seam { flex: 0 0 177px; width: 177px; }
   .room-seam__pillar { visibility: hidden; }
 
