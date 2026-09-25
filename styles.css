@@ -531,12 +531,14 @@ body[data-reduced-motion="true"] .wall-bg { transition: opacity 400ms ease; }
   .timeline-entries__group:nth-of-type(2) .timeline-entry:nth-of-type(2) { order: 1; } /* Sixty Two */
   .timeline-entries__group:nth-of-type(2) .timeline-entry:nth-of-type(3) { order: 3; } /* Earlier */
 
+  /* tighter gap between the "Timeline" label and the card row itself */
+  .piece-box.h-scroll { gap: 32px; }
+
   /* room seam: narrower on mobile, matching the mobile Figma frame's pillar
      spacing (the pillar image itself is hidden at every breakpoint, above). */
   .room-seam { flex: 0 0 177px; width: 177px; }
   .room-seam__pillar { visibility: hidden; }
 
-  .nav-pill { display: none; }
   .mobile-peek { display: flex; }
 }
 
