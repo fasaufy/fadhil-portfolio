@@ -328,7 +328,7 @@ body[data-reduced-motion="true"] .wall-bg { transition: opacity 400ms ease; }
 
 /* ---------- Piece: timeline ---------- */
 
-.piece--timeline .piece-box { width: 1611px; display: flex; align-items: flex-start; gap: 100px; }
+.piece--timeline .piece-box { width: 1366px; display: flex; align-items: flex-start; gap: 100px; }
 .timeline-header { margin: 0; flex: 0 0 auto; font-size: 12px; font-weight: 600; line-height: 1.6; white-space: nowrap; }
 .timeline-body { display: flex; align-items: flex-start; gap: 40px; flex: 0 0 auto; }
 
@@ -341,8 +341,11 @@ body[data-reduced-motion="true"] .wall-bg { transition: opacity 400ms ease; }
 .timeline-company { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; }
 .timeline-desc { margin: 0; font-size: 12px; font-weight: 400; line-height: 1.6; }
 
-.timeline-closer { flex: 0 0 205px; width: 205px; display: flex; flex-direction: column; gap: 32px; }
-.timeline-closer__text { display: flex; flex-direction: column; }
+/* ---------- Piece: closer (personal notes -- its own stop/section now,
+   split out of the timeline piece so it settles on its own) ---------- */
+
+.timeline-closer { display: flex; flex-direction: row; align-items: flex-start; gap: 32px; }
+.timeline-closer__text { flex: 0 0 205px; width: 205px; display: flex; flex-direction: column; }
 .timeline-closer__label { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; }
 .timeline-closer__line { margin: 0 0 1.6em 0; font-size: 12px; font-weight: 400; line-height: 1.6; }
 .timeline-closer__line:last-child { margin-bottom: 0; }
@@ -578,7 +581,8 @@ body[data-reduced-motion="true"] .wall-bg { transition: opacity 400ms ease; }
   .piece--timeline .piece-box { width: 100% !important; flex-direction: column !important; gap: 24px !important; }
   .timeline-body, .timeline-entries { flex-direction: column !important; gap: 24px !important; }
   .timeline-entry { flex: 0 0 auto !important; width: 100% !important; }
-  .timeline-closer { width: 100% !important; flex: 0 0 auto !important; }
+  .timeline-closer { width: 100% !important; flex-direction: column !important; gap: 24px !important; }
+  .timeline-closer__text { width: 100% !important; }
 }
 
 body[data-reduced-motion="true"] .filmstrip { display: block; width: 100%; height: auto; transform: none !important; }
