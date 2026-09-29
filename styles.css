@@ -390,33 +390,80 @@ body[data-reduced-motion="true"] .wall-bg { transition: opacity 400ms ease; }
   z-index: 5;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 1000px;
-  background: rgba(255, 255, 255, 0.55);
-  box-shadow:
-    0 10px 3px rgba(166, 162, 155, 0.05),
-    0 5px 2.5px rgba(166, 162, 155, 0.09),
-    0 1px 1px rgba(166, 162, 155, 0.1);
+  gap: 12px;
 }
 
+/* "Liquid glass" button treatment -- layered inset highlights + a blurred
+   dark ring (::before) and a blurred gradient rim-light (::after) underneath
+   a backdrop-blur, giving each button a frosted, beveled-glass look. */
 .nav-arrow {
-  width: 36px;
-  height: 36px;
+  --w: 36px;
+  --h: 36px;
+  --r: 9999px;
+  --tr: 25%;
+  position: relative;
+  width: var(--w);
+  height: var(--h);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  border: 0.7px solid rgba(255, 255, 255, 0.8);
+  border-radius: var(--r);
+  border: 1px double rgba(51, 51, 51, 0.08);
   box-shadow:
-    0 0.7px 1.4px rgba(0, 0, 0, 0.04),
-    0 2.8px 2.8px rgba(0, 0, 0, 0.04),
-    0 11px 11px rgba(0, 0, 0, 0.06);
-  transition: background 200ms ease, opacity 200ms ease;
+    inset 2px -2px 1px -1px rgba(255, 255, 255, 0.9),
+    inset -2px 2px 1px -1px rgba(255, 255, 255, 0.9),
+    inset 6px -6px 1px -6px rgba(255, 255, 255, 0.55),
+    inset -6px 6px 1px -6px rgba(255, 255, 255, 0.55),
+    inset 0 0 2px rgba(0, 0, 0, 0.8),
+    0 4px 8px rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.02);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  filter: brightness(0.9);
+  cursor: pointer;
+  transition: transform 250ms ease;
 }
-.nav-arrow img { display: block; width: 16px; height: 16px; }
-.nav-arrow:hover { background: rgba(255, 255, 255, 0.9); }
+.nav-arrow::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--w) - 16px);
+  height: calc(var(--h) - 16px);
+  border-radius: var(--r);
+  border: 1px solid rgba(0, 0, 0, 0.9);
+  filter: blur(8px);
+  pointer-events: none;
+}
+.nav-arrow::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: var(--w);
+  height: var(--h);
+  border-radius: var(--r);
+  filter: blur(7px);
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    transparent var(--tr),
+    transparent calc(100% - var(--tr)),
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  pointer-events: none;
+}
+.nav-arrow img {
+  position: relative;
+  z-index: 3;
+  display: block;
+  width: 16px;
+  height: 16px;
+  filter: drop-shadow(0 4px 3px rgba(102, 102, 102, 0.2));
+}
+.nav-arrow:hover { transform: translateY(-3px); }
+.nav-arrow:active { transform: scale(0.94); }
 .nav-arrow:disabled { opacity: 0.3; pointer-events: none; }
 
 .mobile-peek {
