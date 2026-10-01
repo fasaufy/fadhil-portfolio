@@ -4,13 +4,15 @@
     "resumeUrl": "https://drive.google.com/file/d/1oC-bTqMtkw4r18NW8W35n74yFBhxxneX/view"
   },
 
-  "intro1": { "text": "Scroll to begin." },
-  "intro2": { "text": "The lights are off. Scroll to turn them on." },
+  "hallway": {
+    "switchLabelOff": "Turn on the lights",
+    "switchLabelOn": "Lights on"
+  },
 
   "main": {
     "selfPortrait": {
-      "photo": { "src": "assets/self-portrait.jpg", "alt": "Fadhil Yassar" },
-      "wordmark": { "src": "assets/wordmark-fadhil-yassar.svg", "alt": "Fadhil Yassar" },
+      "photo": { "src": "assets/self-portrait.jpg", "alt": "Fadhil Yassar", "frame": "circle" },
+      "wordmark": { "src": "assets/wordmark-fadhil-yassar-light.svg", "alt": "Fadhil Yassar" },
       "role": "Product Designer",
       "tagline": "Selected work, 2019–present. Five pieces. Scroll to walk through them."
     },
@@ -23,9 +25,9 @@
         "proof": "Reached $4M ARR in 8 months.",
         "proofWeight": "semibold",
         "images": [
-          { "src": "assets/wave-wave ai chat.jpg", "alt": "Wave — primary interface screen" },
-          { "src": "assets/wave-web homepage.jpg", "alt": "Wave — supporting detail" },
-          { "src": "assets/wave-branding.jpg", "alt": "Wave — supporting detail" }
+          { "src": "assets/wave-wave ai chat.jpg", "alt": "Wave — primary interface screen", "frame": "rectangle" },
+          { "src": "assets/wave-web homepage.jpg", "alt": "Wave — supporting detail", "frame": "square" },
+          { "src": "assets/wave-branding.jpg", "alt": "Wave — supporting detail", "frame": "renaissance" }
         ]
       },
       {
@@ -36,10 +38,10 @@
         "proof": "Best UX, Best UI, Best Innovation — CSS Design Awards 2023.",
         "proofWeight": "bold",
         "images": [
-          { "src": "assets/CK-homepage.png", "alt": "CyberKongz — primary interface screen" },
-          { "src": "assets/CK-kongz detail page.png", "alt": "CyberKongz — supporting detail" },
-          { "src": "assets/CK-kongz library.png", "alt": "CyberKongz — supporting detail" },
-          { "src": "assets/CK-leaderboard.png", "alt": "CyberKongz — supporting detail" }
+          { "src": "assets/CK-homepage.png", "alt": "CyberKongz — primary interface screen", "frame": "rectangle" },
+          { "src": "assets/CK-kongz detail page.png", "alt": "CyberKongz — supporting detail", "frame": "circle" },
+          { "src": "assets/CK-kongz library.png", "alt": "CyberKongz — supporting detail", "frame": "square" },
+          { "src": "assets/CK-leaderboard.png", "alt": "CyberKongz — supporting detail", "frame": "renaissance" }
         ]
       },
       {
@@ -50,11 +52,11 @@
         "proof": "Design system scaled across both individual and business account types.",
         "proofWeight": "medium",
         "images": [
-          { "src": "assets/touchbiz-phone.jpg", "alt": "Touchbiz — mobile app" },
-          { "src": "assets/Touchbiz-dashboard.jpg", "alt": "Touchbiz — web dashboard" },
-          { "src": "assets/touchbiz-transfer.jpg", "alt": "Touchbiz — transfer flow" },
-          { "src": "assets/button.jpg", "alt": "Touchbiz — button states" },
-          { "src": "assets/touchbiz-components.png", "alt": "Touchbiz — UI component sheet" }
+          { "src": "assets/touchbiz-phone.jpg", "alt": "Touchbiz — mobile app", "frame": "renaissance" },
+          { "src": "assets/Touchbiz-dashboard.jpg", "alt": "Touchbiz — web dashboard", "frame": "square" },
+          { "src": "assets/touchbiz-transfer.jpg", "alt": "Touchbiz — transfer flow", "frame": "rectangle" },
+          { "src": "assets/button.jpg", "alt": "Touchbiz — button states", "frame": "square" },
+          { "src": "assets/touchbiz-components.png", "alt": "Touchbiz — UI component sheet", "frame": "square" }
         ]
       },
       {
@@ -65,10 +67,9 @@
         "proof": "$17.2M raised · partnership ongoing since 2025.",
         "proofWeight": "medium",
         "images": [
-          { "src": "assets/ballogy-home design exploration.png", "alt": "Ballogy — primary interface screen" },
-          { "src": "assets/ballogy-widget.png", "alt": "Ballogy — supporting detail" },
-          { "src": "assets/ballogy-card design.png", "alt": "Ballogy — supporting detail" },
-          { "src": "assets/ballogy-information architecture.png", "alt": "Ballogy — supporting detail" }
+          { "src": "assets/ballogy-home design exploration.png", "alt": "Ballogy — primary interface screen", "frame": "renaissance" },
+          { "src": "assets/ballogy-widget.png", "alt": "Ballogy — supporting detail", "frame": "rectangle" },
+          { "src": "assets/ballogy-card design.png", "alt": "Ballogy — supporting detail", "frame": "rectangle" }
         ]
       },
       {
@@ -79,8 +80,8 @@
         "proof": "Unit sales grew from 132 to 381 over two years.",
         "proofWeight": "medium",
         "images": [
-          { "src": "assets/mantis.jpg", "alt": "Mantis — primary interface screen" },
-          { "src": "assets/mantis-thumbnails.jpg", "alt": "Mantis — supporting detail" }
+          { "src": "assets/mantis.jpg", "alt": "Mantis — primary interface screen", "frame": "rectangle" },
+          { "src": "assets/mantis-thumbnails.jpg", "alt": "Mantis — supporting detail", "frame": "renaissance" }
         ]
       }
     ]
@@ -88,6 +89,7 @@
 
   "about": {
     "cta": {
+      "photo": { "src": "assets/hand.png", "alt": "A hand holding an orange pen, ready to write", "frame": "renaissance-portrait" },
       "lines": [
         "Want the full story behind any of these?",
         "Email me: pfadhily@gmail.com and I'll walk you through the process.",
@@ -101,11 +103,11 @@
         "Trained in nuclear engineering before moving into design. Been building digital products since 2019, mostly for domains with real constraints: banking, AI tools, medical hardware."
       ],
       "photos": [
-        { "src": "assets/me-05.png", "alt": "Fadhil Yassar — personal photo" },
-        { "src": "assets/me-04.png", "alt": "Fadhil Yassar — personal photo" },
-        { "src": "assets/me-03.png", "alt": "Fadhil Yassar — personal photo" },
-        { "src": "assets/me-02.png", "alt": "Fadhil Yassar — personal photo" },
-        { "src": "assets/me-01.png", "alt": "Fadhil Yassar — personal photo" }
+        { "src": "assets/me-05.png", "alt": "Fadhil Yassar — personal photo", "frame": "square" },
+        { "src": "assets/me-04.png", "alt": "Fadhil Yassar — personal photo", "frame": "square" },
+        { "src": "assets/me-03.png", "alt": "Fadhil Yassar — personal photo", "frame": "square" },
+        { "src": "assets/me-02.png", "alt": "Fadhil Yassar — personal photo", "frame": "renaissance-portrait" },
+        { "src": "assets/me-01.png", "alt": "Fadhil Yassar — personal photo", "frame": "rectangle" }
       ],
       "tools": {
         "label": "My Tool Stacks:",
@@ -117,6 +119,7 @@
     },
     "timeline": {
       "header": "Timeline",
+      "photo": { "src": "assets/together.png", "alt": "Fadhil Yassar with colleagues", "frame": "rectangle" },
       "entries": [
         {
           "dates": "Nov 2025–Present",
@@ -150,6 +153,7 @@
         },
         {
           "dates": "2019–2021",
+          "title": "Earlier",
           "description": "Illustration and community design work for Suka Salatiga and GIZ."
         }
       ],
@@ -159,9 +163,9 @@
           { "label": "Off the clock now:", "text": "hiking and photography. Exploring places. most of the places are hidden gems." }
         ],
         "photos": [
-          { "src": "assets/photography-swiss alps.jpg", "alt": "Photography — Switzerland, alpine lake" },
-          { "src": "assets/photography-switzerland.jpg", "alt": "Photography — Switzerland" },
-          { "src": "assets/photography-sunset at telomoyo.jpg", "alt": "Photography — sunset at Telomoyo" }
+          { "src": "assets/photography-swiss alps.jpg", "alt": "Photography — Switzerland, alpine lake", "frame": "rectangle" },
+          { "src": "assets/photography-switzerland.jpg", "alt": "Photography — Switzerland", "frame": "circle" },
+          { "src": "assets/photography-sunset at telomoyo.jpg", "alt": "Photography — sunset at Telomoyo", "frame": "circle" }
         ]
       }
     },

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fadhil Yassar — Product Designer</title>
 <meta name="description" content="Selected product design work, 2019–present, and the story behind it.">
+<meta name="theme-color" content="#041e3a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
@@ -12,112 +13,124 @@
 </head>
 <body>
 
-<div id="app" class="gallery" data-scene="intro" data-motion="auto">
+<div id="app" class="gallery" data-scene="intro" data-lights="off" data-posture="flat">
 
-  <div class="wall-bg wall-bg--intro" data-bg="intro" aria-hidden="true"></div>
-  <div class="wall-bg wall-bg--main" data-bg="main" aria-hidden="true"></div>
+  <!-- Room walls (fixed, viewport-locked). The about wall is drawn on top
+       of the main wall with a clip-path hard cut synced to the room seam. -->
+  <div class="wall-bg wall-bg--main is-active" data-bg="main" aria-hidden="true"></div>
   <div class="wall-bg wall-bg--about" data-bg="about" aria-hidden="true"></div>
-  <div class="spotlight" aria-hidden="true"></div>
-
-  <div class="nav-pill">
-    <button type="button" class="nav-arrow nav-arrow--prev" aria-label="Back">
-      <img src="assets/nav-arrow-prev.svg" alt="" width="16" height="16">
-    </button>
-    <button type="button" class="nav-arrow nav-arrow--next" aria-label="Continue">
-      <img src="assets/nav-arrow-next.svg" alt="" width="16" height="16">
-    </button>
+  <div class="wall-lighting" aria-hidden="true">
+    <span class="wall-lighting__beam"></span>
+    <span class="wall-lighting__core"></span>
+    <span class="wall-lighting__glow"></span>
+    <span class="wall-lighting__vignette"></span>
   </div>
+  <div class="floor" aria-hidden="true"></div>
 
   <main id="track" class="filmstrip" aria-label="Portfolio walkthrough">
 
-    <section class="stop beat" data-kind="beat" data-scene="intro" data-bg="intro" aria-label="Introduction">
-      <p class="beat-text" id="intro1-text"></p>
-    </section>
-
-    <section class="stop beat" data-kind="beat" data-scene="intro" data-bg="intro" aria-label="Introduction, continued">
-      <p class="beat-text" id="intro2-text"></p>
-    </section>
+    <!-- The hallway is drawn by the fixed .hallway layer below; this stop
+         just reserves its length in the strip so walking through the door
+         is one screen of scroll. -->
+    <section class="stop beat beat--hallway" data-kind="beat" data-scene="intro" data-bg="main" aria-label="Entrance"></section>
 
     <div class="scene scene--main" data-scene="main">
       <span class="spacer spacer--lead" aria-hidden="true"></span>
 
       <section class="stop piece piece--portrait" data-kind="piece" data-scene="main" data-bg="main" aria-label="Fadhil Yassar, Product Designer">
         <div class="piece-box">
-          <button type="button" class="frame frame--portrait" data-full="" data-alt="">
-            <span class="frame__mat">
-              <img class="frame__img" alt="" loading="lazy" decoding="async">
-            </span>
-          </button>
-          <div class="reveal-copy">
-            <img class="wordmark" src="assets/wordmark-fadhil-yassar.svg" alt="Fadhil Yassar" width="251" height="43">
+          <div class="frame-slot" id="portrait-frame"></div>
+          <div class="reveal-copy" data-snap>
+            <img class="wordmark" alt="" width="189" height="32">
             <p class="role" id="reveal-role"></p>
             <p class="tagline" id="reveal-tagline"></p>
           </div>
         </div>
       </section>
 
-      <div class="mobile-scroll-group" id="projects-scroll-group">
-        <!-- Wave, CyberKongz, Touchbiz, Ballogy, Mantis rendered here by script.js -->
-      </div>
+      <div id="projects"><!-- Wave, CyberKongz, Touchbiz, Ballogy, Mantis rendered by script.js --></div>
 
       <span class="spacer spacer--trail" aria-hidden="true"></span>
     </div>
 
-    <div class="room-seam" aria-hidden="true">
-      <img class="room-seam__pillar" src="assets/pillar.png" alt="">
-    </div>
+    <div class="room-seam" aria-hidden="true"></div>
 
     <div class="scene scene--about" data-scene="about">
       <span class="spacer spacer--lead" aria-hidden="true"></span>
 
-      <div class="mobile-scroll-group">
-        <section class="stop piece piece--cta" data-kind="piece" data-scene="about" data-bg="about" aria-label="Get in touch">
-          <div class="piece-box" id="about-cta"></div>
-        </section>
+      <section class="stop piece piece--cta" data-kind="piece" data-scene="about" data-bg="about" aria-label="Get in touch">
+        <div class="piece-box">
+          <div class="frame-slot" id="cta-frame"></div>
+          <div class="about-cta" id="about-cta" data-snap></div>
+        </div>
+      </section>
 
-        <section class="stop piece piece--bio" data-kind="piece" data-scene="about" data-bg="about" aria-label="About Fadhil">
-          <div class="piece-box">
-            <div class="bio-note">
-              <p class="bio-name" id="bio-name"></p>
-              <div class="bio-paragraphs" id="bio-paragraphs"></div>
+      <section class="stop piece piece--bio" data-kind="piece" data-scene="about" data-bg="about" aria-label="About Fadhil">
+        <div class="piece-box">
+          <div class="bio-note" data-snap>
+            <p class="bio-name" id="bio-name"></p>
+            <div class="bio-paragraphs" id="bio-paragraphs"></div>
+          </div>
+          <div class="bio-tools" id="bio-tools" data-snap></div>
+          <div class="bio-photos" id="bio-photos"></div>
+        </div>
+      </section>
+
+      <section class="stop piece piece--timeline" data-kind="piece" data-scene="about" data-bg="about" aria-label="Timeline">
+        <div class="piece-box">
+          <p class="timeline-header" id="timeline-header" data-snap></p>
+          <div class="timeline-body">
+            <div class="timeline-entries">
+              <div class="timeline-entries__group" id="timeline-entries-group-1" data-snap></div>
+              <div class="timeline-entries__group" id="timeline-entries-group-2" data-snap></div>
             </div>
-            <div class="bio-photos" id="bio-photos"></div>
-            <div class="bio-tools" id="bio-tools"></div>
+            <div class="frame-slot" id="timeline-frame"></div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section class="stop piece piece--timeline" data-kind="piece" data-scene="about" data-bg="about" aria-label="Timeline">
-          <div class="piece-box h-scroll">
-            <p class="timeline-header" id="timeline-header"></p>
-            <div class="timeline-body">
-              <div class="timeline-entries" id="timeline-entries">
-                <div class="timeline-entries__group" id="timeline-entries-group-1"></div>
-                <div class="timeline-entries__group" id="timeline-entries-group-2"></div>
-              </div>
-            </div>
-          </div>
-        </section>
+      <section class="stop piece piece--closer" data-kind="piece" data-scene="about" data-bg="about" aria-label="Outside of design">
+        <div class="piece-box">
+          <div class="timeline-closer__text" id="timeline-closer-text" data-snap></div>
+          <div class="timeline-closer__photos" id="timeline-closer-photos"></div>
+        </div>
+      </section>
 
-        <section class="stop piece piece--closer" data-kind="piece" data-scene="about" data-bg="about" aria-label="Outside of design">
-          <div class="piece-box">
-            <div class="timeline-closer">
-              <div class="timeline-closer__text" id="timeline-closer-text"></div>
-              <div class="timeline-closer__photos" id="timeline-closer-photos"></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="stop piece piece--resume" data-kind="piece" data-scene="about" data-bg="about" aria-label="Resume and contact">
-          <div class="piece-box">
-            <div class="resume-contact" id="resume-contact"></div>
-          </div>
-        </section>
-      </div>
+      <section class="stop piece piece--resume" data-kind="piece" data-scene="about" data-bg="about" aria-label="Resume and contact">
+        <div class="piece-box">
+          <div class="resume-contact" id="resume-contact" data-snap></div>
+        </div>
+      </section>
 
       <span class="spacer spacer--trail" aria-hidden="true"></span>
     </div>
 
   </main>
+
+  <!-- Foreground hallway: the walls you walk through, the "lights off"
+       dimness over the room beyond, and the light switch that turns it on. -->
+  <div class="hallway" id="hallway">
+    <div class="hallway__dim" aria-hidden="true"></div>
+    <div class="hallway__stage" id="hallway-stage">
+      <span class="hallway__ext hallway__ext--left" aria-hidden="true"></span>
+      <span class="hallway__ext hallway__ext--right" aria-hidden="true"></span>
+      <span class="hallway__ext hallway__ext--bottom" aria-hidden="true"></span>
+      <img class="hallway__walls" src="assets/hallway-walls.png" alt="" width="1466" height="927" decoding="async">
+      <button type="button" class="light-switch" id="light-switch" aria-pressed="false" aria-label="Turn on the lights">
+        <img class="light-switch__img light-switch__img--off" src="assets/switch-off.png" alt="" width="64" height="64">
+        <img class="light-switch__img light-switch__img--on" src="assets/switch-on.png" alt="" width="64" height="64">
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-pill">
+    <button type="button" class="nav-arrow nav-arrow--prev" aria-label="Back">
+      <img src="assets/nav-arrow-prev-light.svg" alt="" width="16" height="16">
+    </button>
+    <button type="button" class="nav-arrow nav-arrow--next" aria-label="Continue">
+      <img src="assets/nav-arrow-next-light.svg" alt="" width="16" height="16">
+    </button>
+  </div>
 
   <div class="mobile-peek" aria-hidden="true">
     <span class="mobile-peek__arrow">›</span>
@@ -133,12 +146,16 @@
     </figure>
   </div>
 
+  <!-- Reads env(safe-area-inset-*) so script.js can centre content inside
+       the notch/home-indicator-safe region. -->
+  <div class="safe-area-probe" aria-hidden="true"></div>
+
 </div>
 
 <template id="tpl-project">
-  <section class="stop piece piece--project" data-kind="piece" data-scene="main" data-project="">
+  <section class="stop piece piece--project" data-kind="piece" data-scene="main" data-bg="main" data-project="">
     <div class="piece-box">
-      <div class="project-copy">
+      <div class="project-copy" data-snap>
         <p class="project-title"></p>
         <div class="project-notes">
           <p class="project-meta"></p>
@@ -152,6 +169,7 @@
 
 <template id="tpl-frame">
   <button type="button" class="frame">
+    <img class="frame__art" alt="" decoding="async">
     <span class="frame__mat">
       <img class="frame__img" alt="" loading="lazy" decoding="async">
       <span class="frame__placeholder" aria-hidden="true"></span>
@@ -161,11 +179,7 @@
 
 <template id="tpl-timeline-entry">
   <div class="timeline-entry">
-    <p class="timeline-dates"></p>
-    <div class="timeline-entry__heading">
-      <p class="timeline-title"></p>
-      <p class="timeline-company"></p>
-    </div>
+    <p class="timeline-heading"></p>
     <p class="timeline-desc"></p>
   </div>
 </template>

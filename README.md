@@ -1,8 +1,8 @@
-# Fadhil Yassar — portfolio
+# Fadhil Yassar — portfolio (v2)
 
-A horizontal-scrolling "gallery" walkthrough: two intro beats, a continuous
-filmstrip of project rooms, a continuous "about" section (different palette),
-and a closing beat. Plain HTML/CSS/JS, no build step.
+A horizontal walkthrough of a small museum: a hallway with a light switch,
+a navy gallery room of physically framed project work, then a maroon "about"
+room. Plain HTML/CSS/JS, no build step. Design source: Figma `489:7505`.
 
 ## Editing content
 
@@ -13,84 +13,73 @@ photos, or edit the timeline.
 - **Project copy**: edit `main.projects[]` — `title`, `meta`, `description`,
   `proof`, `proofWeight` (`"medium"`, `"semibold"`, or `"bold"`).
 - **Project images**: each project's `images` array must keep the same number
-  of entries as it has picture frames (Wave 3, CyberKongz 4, Touchbiz 5,
-  Ballogy 4, Mantis 2) — the layout positions are matched to that array by
-  order, in `styles.css`. Swap `"src"` paths or leave `"src": null` for a
-  blank placeholder frame. Don't add/remove entries without also adjusting
-  the matching `[data-project="..."]` rules in `styles.css`.
-- **Reordering projects**: reorder the `main.projects` array — layout follows
-  by project `id`, not array position, so this is safe.
-- **Bio, tools, timeline, CTA, resume/contact links**: all under `about` in
-  the same file — plain text and arrays, safe to edit freely. The timeline's
-  6 entries render as a horizontal row of cards on desktop (first 3 → group 1,
-  remaining 3 → group 2) — reorder within those groups, but don't add/remove
-  entries without touching `styles.css`'s `.timeline-entries`/`.timeline-entry`
-  rules (which size each card to match Figma).
-- **Bio photos**: `about.bio.photos[]` needs exactly 5 entries (5 picture
-  frames on the wall), same rule as project images.
+  of entries as it has frames on the wall (Wave 3, CyberKongz 4, Touchbiz 5,
+  Ballogy 3, Mantis 2) — positions come from `styles.css`, matched by order.
+- **Frame type**: every image has a `"frame"` — one of `rectangle`, `square`,
+  `renaissance`, `renaissance-portrait`, or `circle`. Changing it swaps the
+  physical frame; the slot's size/position stays the same, so pick a frame
+  whose shape suits that slot.
+- **Reordering projects**: reorder `main.projects` — layout follows each
+  project's `id`, not its array position.
+- **Bio, tools, timeline, CTA, resume/contact links**: all under `about`. The
+  timeline's 6 entries render as two columns (first 3, then the rest) beside
+  the `about.timeline.photo` frame.
+- **Hallway switch labels**: `hallway.switchLabelOff` / `switchLabelOn`
+  (read by screen readers).
 
-Images are lazy-loaded automatically — nothing extra to do.
+Images are lazy-loaded automatically.
 
 ## Running locally
 
-Because the page loads `data/content.json` with `fetch()`, you can't just
-double-click `index.html` (browsers block that for local files). Run a tiny
-local server from this folder instead, then open the printed URL:
+The page loads `data/content.json` with `fetch()`, so serve the folder rather
+than double-clicking `index.html`:
 
 ```
 python3 -m http.server 8080
-# or: npx serve
 ```
 
 Then visit `http://localhost:8080`.
 
-## Deploying to Vercel
-
-This is a static site — no build command needed.
-
-```
-npx vercel
-```
-
-Follow the prompts (Framework Preset: **Other**, no build command, output
-directory: `.`). Every push to your connected Git repo will auto-deploy if you
-link one, or you can just re-run `npx vercel --prod` whenever you update content.
-
 ## How navigation works
 
-- **intro-1, intro-2, and the closing resume/contact piece** are "beats" —
-  scrolling into them always settles fully centered before you can move on.
-- **The main gallery and the about section** are continuous filmstrips —
-  scroll (or touch-drag) moves smoothly through every piece without snapping
-  to each one.
-- Desktop (≥1024px) and tablet (768–1023px, no dedicated design — reuses the
-  desktop canvas) both run the same continuous engine, scaled to fit the
-  viewport's actual height. Screens narrower than 768px switch to a
-  dedicated mobile canvas (its own Figma frame, smaller reference pieces),
-  scaled to fit the viewport's actual width, still touch-driven with the same
-  continuous physics — not a separate stacked/paged layout.
-- Whenever the OS's reduced-motion setting is on, this collapses to a plain
-  stacked, natively-scrolling layout instead, at any screen size.
-
-## Notes on fonts
-
-Body text, titles, and captions all use **Geist** (Google Fonts) at several
-weights. The "Fadhil Yassar" signature is a vector graphic
-(`assets/wordmark-fadhil-yassar.svg`), not text — swap that file to change it.
+- **The hallway** starts with the lights off. Scrolling/swiping does nothing
+  (the switch wiggles) until the visitor taps the switch; then scrolling walks
+  through the doorway into the gallery. Tapping it again turns the lights off
+  and returns to the hallway.
+- **Breakpoints** — one continuous engine, three tiers:
+  - **≥1024px (desktop)**: wheel/trackpad scroll, stage scaled to fit the
+    viewport height (Figma canvas is 800px tall).
+  - **768–1023px (tablet, incl. an unfolded foldable)**: the desktop layout,
+    scaled the same way, touch-driven with snapping.
+  - **<768px (phones, incl. a folded foldable's outer screen)**: a compact
+    mobile layout derived from the desktop design (frames at 0.66 scale),
+    scaled to fit the viewport width.
+- **Touch** follows the finger 1:1, with momentum, then settles on the nearest
+  artwork or placard. The arrows/keys step one piece at a time, or — when a
+  piece is wider than the screen — one screen-sized chunk at a time, placard
+  first.
+- **Foldables**: an unfolded inner screen (touch, ≥768px wide, ≤700px tall,
+  near-square) is treated as a two-pane wall: snapping and stepping never
+  leave an artwork or placard across the centre hinge, and the arrow buttons
+  sit one per pane. Folding/unfolding re-lays out instantly (ResizeObserver)
+  and keeps the visitor on the same piece.
+- **Safe areas**: content and controls stay clear of notches and the home
+  indicator (`viewport-fit=cover` + `env(safe-area-inset-*)`).
+- **Reduced motion**: a plain stacked, natively scrolling layout instead.
 
 ## Assets
 
-- `assets/bg-light-off.png` — dim wall, used for intro-1 and intro-2.
-- `assets/bg-light-on.png` — warm off-white wall, used for the whole main gallery.
-- `assets/bg-maroon.png` — the maroon "about" room wall.
-- `assets/self-portrait.jpg` — the small framed photo on the name-reveal piece.
-- `assets/nav-arrow-prev.svg` / `nav-arrow-next.svg` — the bottom-center nav
-  pill's icons.
-- Everything else in `assets/` is a project screenshot or personal photo
-  referenced by `data/content.json` — filenames are deliberately descriptive
-  (e.g. `wave-web homepage.jpg`) since the lightbox caption is generated
-  directly from the filename.
-
-All background/photo assets were resized and compressed for the web already;
-if you replace one, keep it under ~2500px on the long edge and export as a
-reasonably compressed JPEG to keep the page fast.
+- `hallway-walls.png`, `hallway-edge-*.png` — the entrance walls (the edge
+  strips continue them on very wide/tall screens), `switch-off.png` /
+  `switch-on.png` — the light switch, `floor.png` — the gallery floor.
+- `Rectangle-frame.png`, `Square-frame.png`, `Renaisans-frame.png`,
+  `Renaisans-frame-portrait.png`, `Circle-frame.png` — the physical frames.
+- Wall colours are CSS (`--wall-main: #041e3a`, `--wall-about: #320b09`),
+  with the Figma light-beam and vignette layered on top.
+- `wordmark-fadhil-yassar-light.svg` — the signature on the portrait piece.
+- `nav-arrow-*-light.svg` — the nav buttons' icons on the dark walls.
+- Everything else is a project screenshot or personal photo referenced by
+  `data/content.json`. Filenames are descriptive (e.g. `wave-web homepage.jpg`)
+  because the lightbox caption is generated from the filename.
+- For sharp frames on 3× displays, keep source images at least 3× their
+  largest on-screen size (most are already well above that).
