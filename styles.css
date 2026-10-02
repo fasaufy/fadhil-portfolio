@@ -350,20 +350,75 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .resume-contact { display: flex; flex-direction: column; gap: 24px; }
 .resume-contact__item { display: flex; flex-direction: column; gap: 8px; }
 .resume-contact__label { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; }
+/* Same "liquid glass" treatment as the nav pill's buttons, as a pill:
+   inset highlights, a blurred dark ring (::before) and a blurred gradient
+   rim-light (::after) under a backdrop blur, with the same hover lift and
+   press. Insets replace the nav buttons' fixed --w/--h so it fits any label. */
 .resume-contact__button {
+  --tr: 18%;
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   width: fit-content;
-  padding: 6px 10px 6px 12px;
-  border: 1px solid #ffffff;
+  min-height: 36px;
+  padding: 7px 14px 7px 16px;
+  border-radius: 9999px;
+  border: 1px double rgba(51, 51, 51, 0.08);
+  box-shadow:
+    inset 2px -2px 1px -1px rgba(255, 255, 255, 0.9),
+    inset -2px 2px 1px -1px rgba(255, 255, 255, 0.9),
+    inset 6px -6px 1px -6px rgba(255, 255, 255, 0.55),
+    inset -6px 6px 1px -6px rgba(255, 255, 255, 0.55),
+    inset 0 0 2px rgba(0, 0, 0, 0.8),
+    0 4px 8px rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.02);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  filter: brightness(0.9);
   color: inherit;
   font-size: 12px;
   line-height: 1.6;
+  text-decoration: none;
   white-space: nowrap;
-  transition: background 200ms ease;
+  transition: transform 250ms ease;
 }
-.resume-contact__button:hover { background: rgba(255, 255, 255, 0.1); }
+.resume-contact__button::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 35%;
+  left: 8px;
+  right: 8px;
+  height: calc(100% - 16px);
+  border-radius: inherit;
+  border: 1px solid rgba(0, 0, 0, 0.9);
+  filter: blur(8px);
+  pointer-events: none;
+}
+.resume-contact__button::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: inherit;
+  filter: blur(7px);
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    transparent var(--tr),
+    transparent calc(100% - var(--tr)),
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  pointer-events: none;
+}
+.resume-contact__button > span {
+  position: relative;
+  z-index: 3;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+}
+.resume-contact__button:hover { transform: translateY(-3px); }
+.resume-contact__button:active { transform: scale(0.94); }
 
 /* ---------- Hallway (foreground intro layer) ----------
    .hallway__stage is the Figma "Subtract" wall graphic at its local size
