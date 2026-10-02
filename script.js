@@ -21,25 +21,31 @@
   const tplFrame = document.getElementById('tpl-frame');
   const tplTimelineEntry = document.getElementById('tpl-timeline-entry');
 
-  // Three breakpoint tiers, one shared continuous engine:
-  //  < MOBILE_BREAKPOINT       -- mobile canvas (derived from v2 desktop),
-  //                               authored at a 393px-wide reference; the
-  //                               stage is scaled to fit actual viewport WIDTH.
-  //  MOBILE_BREAKPOINT..~1024  -- "tablet" (incl. an unfolded foldable): no
-  //                               dedicated canvas, so it reuses the desktop
-  //                               canvas's CSS and scales it like desktop does,
-  //                               touch-driven with snapping.
-  //  >= ~1024                 -- desktop canvas (Figma 489:7505), authored at
-  //                               an 800px-tall reference; the stage is scaled
-  //                               to fit actual viewport HEIGHT.
+  // One layout everywhere: the 1440x800 Figma canvas (489:7505), shown 1:1.
+  // It scales DOWN to fit a shorter screen, never up -- larger screens keep
+  // it at 1:1 and centre it vertically (Figma 511:385), with the walls,
+  // ceiling and floor continuing into the extra space. The reference box is
+  // 800 tall on desktop/tablet and 844 on phones (Figma 511:163: the canvas
+  // at the top of a 390x844 frame, floor below it).
+  //  < MOBILE_BREAKPOINT  -- phones: hallway framed on the light switch,
+  //                          touch-driven with snapping.
+  //  >= MOBILE_BREAKPOINT -- tablet/desktop: hallway framed on the door.
   const MOBILE_BREAKPOINT = 768;
-  const MOBILE_REFERENCE_WIDTH = 393;
   const DESKTOP_REFERENCE_HEIGHT = 800;
+  const MOBILE_REFERENCE_HEIGHT = 844;
+  const FLOOR_TOP = 739.241;            // canvas y where the floor starts
 
-  // The hallway graphic (Figma "Subtract"), in its own local px: the door's
-  // centre line, where the graphic sits relative to the 800px canvas, and
-  // the horizontal span (door + switch) that must stay on screen.
-  const HALLWAY = { doorCenterX: 733.75, doorCenterY: 506, top: -90, keepVisibleW: 660 };
+  // The hallway graphic (Figma "Subtract"), in its own local px: where it
+  // sits relative to the canvas, the doorway opening, the switch, and the
+  // point centred on screen at rest (phones centre between door and switch,
+  // so the switch sits at x=289.5 of a 390px screen like the Figma frame).
+  const HALLWAY = {
+    top: -90,
+    door: { left: 537.5, right: 930, top: 134, bottom: 890 },
+    switchLeft: 985.5,
+    anchorDesktop: 733.75,
+    anchorMobile: 891,
+  };
 
   const FRAME_ART = {
     rectangle: 'assets/Rectangle-frame.png',
@@ -410,11 +416,15 @@
   // ================= CONTINUOUS (desktop, tablet, mobile; motion OK) =================
 
   let stageScale = 1;
+  let stageTop = 0;   // screen y of the canvas's top edge
+  function isMobileTier() { return window.innerWidth < MOBILE_BREAKPOINT; }
   function updateStageScale() {
-    stageScale = window.innerWidth < MOBILE_BREAKPOINT
-      ? window.innerWidth / MOBILE_REFERENCE_WIDTH
-      : window.innerHeight / DESKTOP_REFERENCE_HEIGHT;
-    document.documentElement.style.setProperty('--stage-scale', String(stageScale));
+    const refH = isMobileTier() ? MOBILE_REFERENCE_HEIGHT : DESKTOP_REFERENCE_HEIGHT;
+    stageScale = Math.min(1, window.innerHeight / refH);
+    stageTop = (window.innerHeight - refH * stageScale) / 2;
+    const root = document.documentElement.style;
+    root.setProperty('--stage-scale', String(stageScale));
+    root.setProperty('--floor-top', (stageTop + FLOOR_TOP * stageScale) + 'px');
   }
   // All scroll/beat/measurement math below is done in the track's own local
   // (pre-scale) coordinate space -- this mirrors window.innerWidth for it.
@@ -471,29 +481,36 @@
     wallAbout.style.clipPath = 'inset(0 0 0 ' + Math.max(0, seamX) + 'px)';
   }
 
-  // ---- hallway: positioned so the door is centred and the switch stays on
-  // screen, then zoomed away (you walk through the door) over the first
-  // screen of scroll. ----
-  let hallwayScale = 1;
+  // ---- hallway: at rest it's placed exactly as in Figma, at the stage
+  // scale. Walking in is a camera move, not a dissolve: the view drifts to
+  // the doorway's centre and pushes through it until the opening is wider
+  // and taller than the screen, so the walls simply pass out of view. ----
+  let hallLeft0 = 0, hallTop0 = 0;   // rest position of the graphic, screen px
+  let walkEnd = 1;                   // scrollX where the walk-in is complete
   function layoutHallway() {
-    hallwayScale = Math.min(window.innerHeight / DESKTOP_REFERENCE_HEIGHT, window.innerWidth / HALLWAY.keepVisibleW);
+    const anchor = isMobileTier() ? HALLWAY.anchorMobile : HALLWAY.anchorDesktop;
+    hallLeft0 = safeCenterScreenX() - anchor * stageScale;
+    hallTop0 = stageTop + HALLWAY.top * stageScale;
   }
 
   function updateHallway() {
-    const introLen = (stops[0] && stops[0].width) || localViewportWidth();
-    const p = clamp(scrollX / introLen, 0, 1);
-    const zoom = 1 + p * p * 2.4;
-    const hs = hallwayScale;
-    const baseLeft = safeCenterScreenX() - HALLWAY.doorCenterX * hs;
-    const baseTop = HALLWAY.top * hs;
-    const ax = safeCenterScreenX();
-    const ay = baseTop + HALLWAY.doorCenterY * hs;
-    const left = ax + (baseLeft - ax) * zoom;
-    const top = ay + (baseTop - ay) * zoom;
-    hallwayStage.style.transform = 'translate(' + left + 'px,' + top + 'px) scale(' + (hs * zoom) + ')';
-    const fade = clamp((p - 0.5) / 0.42, 0, 1);
-    hallway.style.opacity = String(1 - fade * fade * (3 - 2 * fade));
-    hallway.style.visibility = p >= 0.995 ? 'hidden' : '';
+    const s = stageScale, d = HALLWAY.door;
+    const p = clamp(scrollX / walkEnd, 0, 1);
+    const doorCx = (d.left + d.right) / 2, doorCy = (d.top + d.bottom) / 2;
+    const vw = window.innerWidth, vh = window.innerHeight, cx = safeCenterScreenX();
+    const fromX = hallLeft0 + doorCx * s, doorY = hallTop0 + doorCy * s;
+    // Zoom at which the opening clears every screen edge, with the door
+    // centred horizontally (it is by then) and at its own height.
+    const needW = 2 * Math.max(cx, vw - cx) / ((d.right - d.left) * s);
+    const needH = 2 * Math.max(doorY, vh - doorY) / ((d.bottom - d.top) * s);
+    const zMax = Math.max(needW, needH) * 1.06;
+    const zoom = Math.pow(zMax, p);                  // constant perceived speed
+    const ease = p * p * (3 - 2 * p);
+    const doorX = fromX + (cx - fromX) * ease;
+    const left = doorX - doorCx * s * zoom;
+    const top = doorY - doorCy * s * zoom;
+    hallwayStage.style.transform = 'translate(' + left + 'px,' + top + 'px) scale(' + (s * zoom) + ')';
+    hallway.style.visibility = p >= 0.999 ? 'hidden' : '';
     lightSwitch.style.pointerEvents = p > 0.15 ? 'none' : '';
   }
 
@@ -522,7 +539,7 @@
     track.style.transition = '';
     track.style.transform = '';
     wallAbout.style.opacity = ''; wallAbout.style.clipPath = '';
-    hallway.style.opacity = ''; hallway.style.visibility = '';
+    hallway.style.visibility = '';
     window.removeEventListener('wheel', onContinuousWheel);
     window.removeEventListener('touchstart', onContinuousTouchStart);
     window.removeEventListener('touchmove', onContinuousTouchMove);
@@ -596,7 +613,11 @@
     const insetL = insets.left / stageScale, insetR = insets.right / stageScale;
     const safeW = vw - insetL - insetR;
 
-    document.querySelectorAll('.beat').forEach((beat) => { beat.style.width = vw + 'px'; });
+    // The hallway stop ends where the gallery begins: in Figma the portrait
+    // hangs right behind the right-hand wall, its left edge in line with the
+    // light switch, so walking in reveals it from behind the wall.
+    const hallW = Math.max(1, (hallLeft0 + HALLWAY.switchLeft * stageScale) / stageScale);
+    document.querySelectorAll('.beat').forEach((beat) => { beat.style.width = hallW + 'px'; });
 
     document.querySelectorAll('.scene').forEach((scene) => {
       const lead = scene.querySelector('.spacer--lead');
@@ -606,7 +627,9 @@
       if (!pieces.length) return;
       const firstW = pieces[0].getBoundingClientRect().width;
       const lastW = pieces[pieces.length - 1].getBoundingClientRect().width;
-      lead.style.width = (Math.max(0, (safeW - firstW) / 2) + insetL) + 'px';
+      if (!scene.classList.contains('scene--main')) {
+        lead.style.width = (Math.max(0, (safeW - firstW) / 2) + insetL) + 'px';
+      }
       trail.style.width = (Math.max(0, (safeW - lastW) / 2) + insetR) + 'px';
     });
   }
@@ -621,6 +644,9 @@
     });
     beatRanges = stops.map((s, i) => ({ ...s, index: i })).filter((s) => s.kind === 'beat');
     maxScrollX = Math.max(0, trackRect.width - localViewportWidth());
+    // Walk-in completes with the first gallery piece centred.
+    const first = stops.find((s) => s.kind !== 'beat');
+    walkEnd = Math.max(1, clamp(first.centerX - centerLocal(), 1, maxScrollX));
   }
 
   let stepTargets = []; // scrollX positions the arrows / keys step between
@@ -640,12 +666,14 @@
   }
 
   // One step per stop when it fits on screen; a piece wider than the safe
-  // screen area (most pieces on phones/tablets) is paged through in
-  // screen-sized chunks of its own artworks, placard first, so a step never
-  // lands on the middle of a piece with its placard cut off.
+  // screen area (most pieces on phones) is paged through in screen-sized
+  // chunks of its own artworks, placard first. Chunks sit left-aligned with
+  // a small margin, so each step reads left to right and the next chunk
+  // peeks in from the right edge.
   function buildStepTargets() {
     const c = centerLocal();
     const safeW = (window.innerWidth - insets.left - insets.right) / stageScale;
+    const leftEdge = (insets.left + 24) / stageScale;
     const raw = [];
     stops.forEach((s, i) => {
       if (s.kind === 'beat') { raw.push({ x: s.centerX - c, beat: true }); return; }
@@ -656,16 +684,22 @@
       for (let k = 1; k < items.length; k++) {
         const it = items[k];
         if (Math.max(end, it.right) - start <= safeW * 0.92) { end = Math.max(end, it.right); continue; }
-        raw.push({ x: (start + end) / 2 - c });
+        raw.push({ x: start - leftEdge });
         start = it.left; end = it.right;
       }
-      raw.push({ x: (start + end) / 2 - c });
+      raw.push({ x: start - leftEdge });
     });
+    // The walk-in ends on the first step inside the room -- on a phone that's
+    // the first screen-sized chunk of the portrait (it's wider than the
+    // screen at 1:1), elsewhere the whole portrait centred.
+    const firstInside = raw.find((t) => !t.beat);
+    if (firstInside) walkEnd = clamp(firstInside.x, 1, Math.max(1, maxScrollX));
     // Unfolded: every step is a crease-safe position up front, so stepping
     // can never land with an artwork or placard across the hinge.
     const xs = raw.map((t) => {
-      const x = clamp(t.x, 0, maxScrollX);
-      return (hingeScreenX !== null && !t.beat) ? creaseSafeTarget(x) : x;
+      if (t.beat) return 0;
+      const x = clamp(t.x, walkEnd, maxScrollX);
+      return hingeScreenX !== null ? creaseSafeTarget(x, walkEnd) : x;
     });
     stepTargets = [];
     xs.sort((a, b) => a - b).forEach((x) => {
@@ -674,7 +708,7 @@
   }
 
   function applyTransform() {
-    track.style.transform = 'scale(' + stageScale + ') translateX(' + (-scrollX) + 'px)';
+    track.style.transform = 'translateY(' + stageTop + 'px) scale(' + stageScale + ') translateX(' + (-scrollX) + 'px)';
     updateSeamHardCut();
     updateHallway();
   }
@@ -722,10 +756,16 @@
     kick();
   }
 
+  // Never rest halfway through the doorway: anywhere inside the walk-in
+  // resolves to the hallway or to fully inside the room.
+  function walkSettle(x) {
+    if (x > 0.5 && x < walkEnd - 0.5) return x >= walkEnd * 0.3 ? walkEnd : 0;
+    return null;
+  }
+
   function settleToBeatIfNeeded() {
-    const c = centerLocal();
-    const beat = beatContaining(targetScrollX + c);
-    if (beat) setTarget(beat.centerX - c);
+    const w = walkSettle(targetScrollX);
+    if (w !== null) setTarget(w);
   }
 
   // ---- snapping (touch) ----
@@ -733,23 +773,21 @@
   // where no artwork or placard straddles the hinge, preferring each piece
   // centred in the left or right pane -- a two-pane wall, not a stretched
   // phone. Beats (the hallway) always settle fully into view.
+  // Swipes settle on the same positions the arrows step to (already
+  // hinge-safe when unfolded), so touch and buttons always agree.
   function snapTargetFor(projected) {
-    const c = centerLocal();
-    const beat = beatContaining(projected + c);
-    if (beat) return clamp(beat.centerX - c, 0, maxScrollX);
-    if (!snapItems.length) return projected;
-    if (hingeScreenX !== null) return creaseSafeTarget(projected);
-
-    let best = projected, bestDist = Infinity;
-    snapItems.forEach((it) => {
-      const x = clamp(it.center - c, 0, maxScrollX);
+    const w = walkSettle(projected);
+    if (w !== null) return w;
+    if (projected <= 0.5 || !stepTargets.length) return clamp(projected, 0, maxScrollX);
+    let best = stepTargets[0], bestDist = Infinity;
+    stepTargets.forEach((x) => {
       const d = Math.abs(x - projected);
       if (d < bestDist) { bestDist = d; best = x; }
     });
     return best;
   }
 
-  function creaseSafeTarget(projected) {
+  function creaseSafeTarget(projected, minX = 0) {
     const vwL = localViewportWidth();
     const hinge = hingeScreenX / stageScale;           // hinge offset within the viewport, local
     const gap = 12 / stageScale;                        // keep this clear of the fold on either side
@@ -765,7 +803,7 @@
     const reach = vwL * 0.75;
     let best = null, bestScore = Infinity;
     for (const raw of candidates) {
-      const x = clamp(raw, 0, maxScrollX);
+      const x = clamp(raw, minX, maxScrollX);
       if (Math.abs(x - projected) > reach) continue;
       const hingeAt = x + hinge;
       let straddling = 0;
@@ -776,7 +814,7 @@
       const score = straddling * vwL + Math.abs(x - projected);
       if (score < bestScore) { bestScore = score; best = x; }
     }
-    return best === null ? clamp(projected, 0, maxScrollX) : best;
+    return best === null ? clamp(projected, minX, maxScrollX) : best;
   }
 
   function onContinuousWheel(e) {
@@ -805,6 +843,7 @@
   let touchIsHorizontal = null;
   let touchSamples = [];
   let touchNudged = false;
+  let touchStartScroll = 0;
 
   function onContinuousTouchStart(e) {
     if (!lightbox.hidden || !e.touches.length) return;
@@ -815,6 +854,7 @@
     touchSamples = [{ t: e.timeStamp, x: touchStartX }];
     touchNudged = false;
     if (rafId) { targetScrollX = scrollX; } // catch a moving strip under the finger
+    touchStartScroll = targetScrollX;
   }
 
   function onContinuousTouchMove(e) {
@@ -845,7 +885,19 @@
       const dt = b && a ? b.t - a.t : 0;
       const velocity = dt > 0 ? (b.x - a.x) / dt : 0;        // screen px per ms
       const projected = targetScrollX - (velocity * 260) / stageScale;
-      setTarget(snapTargetFor(clamp(projected, 0, maxScrollX)));
+      let snap = snapTargetFor(clamp(projected, 0, maxScrollX));
+      // A deliberate swipe always moves at least one step: when the next
+      // step is far away (e.g. the gap between rooms), the nearest snap
+      // point would otherwise pull the visitor straight back.
+      const moved = touchLastX - touchStartX;                 // screen px, + = finger moved right
+      if (Math.abs(moved) > 30 && Math.abs(snap - touchStartScroll) < 4) {
+        const forward = moved < 0;
+        const next = forward
+          ? stepTargets.find((x) => x > touchStartScroll + 4)
+          : [...stepTargets].reverse().find((x) => x < touchStartScroll - 4);
+        if (next !== undefined) snap = next;
+      }
+      setTarget(snap);
     }
     touchActive = false;
     touchIsHorizontal = null;

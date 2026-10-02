@@ -80,52 +80,50 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.28) 100%);
 }
 
-/* Floor: Figma places it at y=739 of the 800px-tall canvas, so it always
-   takes the bottom 7.625% of the viewport, texture scaled with height. */
+/* Floor: starts at the canvas's floor line (y=739 of 800, placed by
+   script.js via --floor-top) and runs to the bottom of the screen, so on a
+   tall screen the room just gets more floor. Texture at the stage scale. */
 .floor {
   position: fixed;
   left: 0; right: 0; bottom: 0;
-  height: 7.625dvh;
+  top: var(--floor-top, 92.375dvh);
   z-index: 3;
   pointer-events: none;
-  background: url('assets/floor.png') center top / auto calc(100dvh * 375.925 / 800) repeat-x;
+  /* The texture doesn't tile, so on screens wider than the canvas the outer
+     planks are continued sideways (stretched 2px edge columns) instead of
+     repeating the image with a visible seam. */
+  background:
+    url('assets/floor.png') center top / calc(1465.875px * var(--stage-scale)) calc(375.925px * var(--stage-scale)) no-repeat,
+    url('assets/floor-edge-left.png') left top / 50% calc(375.925px * var(--stage-scale)) no-repeat,
+    url('assets/floor-edge-right.png') right top / 50% calc(375.925px * var(--stage-scale)) no-repeat;
 }
 
-/* ---------- Filmstrip track ---------- */
+/* ---------- Filmstrip track ----------
+   Every tier lays out on the same 800px-tall canvas as Figma; script.js
+   scales it (down only) and centres it vertically, so track and stop
+   heights stay at that fixed local value. */
 
 .filmstrip {
   position: relative;
   z-index: 4;
   display: flex;
   align-items: stretch;
-  height: 100%;
+  height: 800px;
   width: max-content;
   transform-origin: 0 0;
   will-change: transform;
 }
 
 .stop {
-  height: 100dvh;
+  height: 800px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  padding-top: calc(env(safe-area-inset-top, 0px) / var(--stage-scale));
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) / var(--stage-scale));
 }
 
-/* Desktop/tablet stage-scales to fit HEIGHT (stageScale = viewportHeight /
-   800, the v2 Figma desktop canvas's reference height). Track and stop
-   heights must be that same fixed local value so the scaled result fills
-   the real viewport exactly, with no flex-centering drift. Mobile keeps
-   100dvh: its stage scales to fit WIDTH instead. */
-@media (min-width: 768px) {
-  .filmstrip { height: 800px; }
-  .stop { height: 800px; }
-}
-
-/* Beat width is set inline by script.js to the local-space viewport width;
-   flex-basis must stay auto so that width wins. */
+/* The hallway stop's width is set inline by script.js (it ends where the
+   gallery begins); flex-basis must stay auto so that width wins. */
 .beat { flex: 0 0 auto; width: 100vw; }
 
 .scene { display: flex; align-items: center; flex: 0 0 auto; gap: 300px; }
@@ -396,19 +394,31 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* Clipped at local y=890 (the Figma canvas's bottom edge) -- below that the
    graphic's door jambs flare outward in perspective, which only looks right
    when it's off screen. Taller viewports get the straight extension below. */
+/* Also trimmed 12px at the sides and 2px at the top: the graphic's outermost
+   pixels are anti-aliased and would show as hairlines against the
+   extensions on screens wider/taller than the canvas. Each extension tucks
+   8px under the graphic so the joins never leave a sub-pixel gap. */
 .hallway__walls {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  clip-path: inset(0 0 37.093px 0);
+  clip-path: inset(2px 12px 37.093px 12px);
   user-select: none; -webkit-user-drag: none;
 }
 .hallway__ext { position: absolute; display: block; }
 .hallway__ext--left {
-  right: calc(100% - 12px); top: 0; width: 6000px; height: 7000px;
+  right: calc(100% - 20px); top: 0; width: 6000px; height: 7000px;
   background: #cbc7c6 url('assets/hallway-edge-left.png') right top / 1px 923px repeat-x;
 }
 .hallway__ext--right {
-  left: 1453.875px; top: 0; width: 6000px; height: 7000px;
+  left: 1445.875px; top: 0; width: 6000px; height: 7000px;
   background: #c3bfbf url('assets/hallway-edge-right.png') left top / 1px 923px repeat-x;
+}
+/* Ceiling above the graphic, for screens taller than the canvas (it stays
+   at 1:1 and centred there, so there's room above it). */
+.hallway__ext--top {
+  left: -6000px; bottom: calc(100% - 10px); width: 13465.875px; height: 6000px;
+  background:
+    url('assets/hallway-edge-top.png') 6012px 0 / 1441.875px 1px repeat-y,
+    linear-gradient(to right, #bbafa3 50%, #b8aea4 50%);
 }
 .hallway__ext--bottom {
   /* starts 10px under the (clipped) graphic, which paints over it, so the
@@ -608,90 +618,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   padding:
     env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
     env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
-}
-
-/* ============================================================
-   MOBILE (< 768px): derived from the v2 desktop canvas -- same rooms,
-   frames and order; frames scaled to 0.66, placards kept at full text
-   size. Authored against a 393px-wide reference, stage-scaled to width.
-   Tablet (768-1023px) deliberately falls through to the desktop rules.
-   ============================================================ */
-
-@media (max-width: 767px) {
-  .room-seam { flex: 0 0 177px; width: 177px; }
-
-  .piece--portrait .piece-box { width: 218px; height: 262px; }
-  .piece--portrait .frame { left: 0; top: 0; width: 120px; height: 120px; }
-  .reveal-copy { left: 0; top: 140px; width: 218px; --reveal-gap: 16px; }
-
-  .project-copy { width: 175px !important; top: 50% !important; }
-
-  [data-project="wave"] .piece-box { width: 788.186px; height: 334.251px; }
-  [data-project="wave"] .frame:nth-of-type(1) { left: 442.78px; top: 25.08px; width: 345.406px; height: 284.288px; }
-  [data-project="wave"] .frame:nth-of-type(2) { left: 254.68px; top: 158.691px; width: 180.18px; height: 175.56px; }
-  [data-project="wave"] .frame:nth-of-type(3) { left: 223px; top: 0; width: 211.86px; height: 149.452px; }
-
-  [data-project="cyberkongz"] .piece-box { width: 776.74px; height: 302.386px; }
-  [data-project="cyberkongz"] .frame:nth-of-type(1) { left: 500.2px; top: 34.794px; width: 276.54px; height: 227.7px; }
-  [data-project="cyberkongz"] .frame:nth-of-type(2) { left: 378.76px; top: 28.854px; width: 106.92px; height: 106.92px; }
-  [data-project="cyberkongz"] .frame:nth-of-type(3) { left: 223px; top: 0; width: 135.96px; height: 132.474px; }
-  [data-project="cyberkongz"] .frame:nth-of-type(4) { left: 273.82px; top: 152.934px; width: 211.86px; height: 149.452px; }
-
-  [data-project="touchbiz"] .piece-box { width: 625.516px; height: 319.684px; }
-  [data-project="touchbiz"] .frame:nth-of-type(1) { left: 368.634px; top: 191.716px; width: 136.435px; height: 96.245px; }
-  [data-project="touchbiz"] .frame:nth-of-type(2) { left: 223px; top: 191.716px; width: 131.335px; height: 127.967px; }
-  [data-project="touchbiz"] .frame:nth-of-type(3) { left: 282.545px; top: 0; width: 222.437px; height: 183.079px; }
-  [data-project="touchbiz"] .frame:nth-of-type(4) { left: 519.34px; top: 141.492px; width: 106.176px; height: 103.454px; }
-  [data-project="touchbiz"] .frame:nth-of-type(5) { left: 519.34px; top: 21.436px; width: 106.176px; height: 103.454px; }
-
-  [data-project="ballogy"] .piece-box { width: 655.825px; height: 327.689px; }
-  [data-project="ballogy"] .frame:nth-of-type(1) { left: 232.989px; top: 0; width: 200.4px; height: 141.368px; }
-  [data-project="ballogy"] .frame:nth-of-type(2) { left: 223px; top: 154.514px; width: 210.405px; height: 173.175px; }
-  [data-project="ballogy"] .frame:nth-of-type(3) { left: 445.42px; top: 77.22px; width: 210.405px; height: 173.175px; }
-
-  [data-project="mantis"] .piece-box { width: 635.5px; height: 199.307px; }
-  [data-project="mantis"] .frame:nth-of-type(1) { left: 223px; top: 24.343px; width: 212.493px; height: 174.965px; }
-  [data-project="mantis"] .frame:nth-of-type(2) { left: 445.636px; top: 0; width: 189.864px; height: 133.935px; }
-
-  /* about: CTA -- frame above, text below, as on desktop but compact */
-  .piece--cta .piece-box { width: 262px; height: auto; gap: 24px; }
-  .piece--cta .frame { width: 145.53px; height: 205.92px; }
-  .about-cta { max-width: 262px; }
-
-  /* about: bio -- notes in a left column, photo cluster to the right */
-  .piece--bio .piece-box {
-    width: auto; height: auto;
-    display: grid;
-    grid-template-columns: 206px auto;
-    grid-template-rows: auto auto;
-    column-gap: 40px;
-    row-gap: 20px;
-    align-items: center;
-  }
-  .bio-note { position: static; grid-column: 1; grid-row: 1; width: 206px; align-self: end; }
-  .bio-tools { position: static; grid-column: 1; grid-row: 2; width: 206px; align-self: start; }
-  .bio-photos { position: relative; inset: auto; grid-column: 2; grid-row: 1 / span 2; width: 507.091px; height: 316.8px; }
-  .bio-photos .frame:nth-of-type(1) { left: 0; top: 68.768px; width: 127.625px; height: 124.352px; }
-  .bio-photos .frame:nth-of-type(2) { left: 233.717px; top: 0; width: 126.234px; height: 122.997px; }
-  .bio-photos .frame:nth-of-type(3) { left: 137.537px; top: 37.792px; width: 87.93px; height: 85.676px; }
-  .bio-photos .frame:nth-of-type(4) { left: 370.483px; top: 97.267px; width: 136.608px; height: 193.296px; }
-  .bio-photos .frame:nth-of-type(5) { left: 135.679px; top: 130.102px; width: 226.742px; height: 186.698px; }
-
-  /* about: timeline -- same two columns + photo, tighter header gap */
-  .piece--timeline .piece-box { width: auto; height: auto; gap: 32px; }
-  .timeline-body { flex: 0 0 auto; }
-  .timeline-entries { flex: 0 0 auto; }
-  .piece--timeline .frame { flex: 0 0 308.507px; width: 308.507px; height: 254.021px; }
-
-  /* about: closer -- text then photo cluster, side by side */
-  .piece--closer .piece-box { width: auto; height: auto; display: flex; align-items: center; gap: 40px; }
-  .timeline-closer__text { position: static; transform: none; flex: 0 0 206px; width: 206px; }
-  .timeline-closer__photos { position: relative; inset: auto; flex: 0 0 auto; width: 591.411px; height: 211.86px; }
-  .timeline-closer__photos .frame:nth-of-type(1) { left: 172.183px; top: 0; width: 257.189px; height: 211.766px; }
-  .timeline-closer__photos .frame:nth-of-type(2) { left: 445.43px; top: 65.879px; width: 145.981px; height: 145.981px; }
-  .timeline-closer__photos .frame:nth-of-type(3) { left: 0; top: 0; width: 156.462px; height: 156.462px; }
-
-  .piece--resume .piece-box { width: auto; height: auto; }
 }
 
 /* ---------- Reduced motion: plain stacked, natively scrolling ---------- */

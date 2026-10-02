@@ -44,19 +44,21 @@ Then visit `http://localhost:8080`.
 
 - **The hallway** starts with the lights off. Scrolling/swiping does nothing
   (the switch wiggles) until the visitor taps the switch; then scrolling walks
-  through the doorway into the gallery. Tapping it again turns the lights off
-  and returns to the hallway.
-- **Breakpoints** — one continuous engine, three tiers:
-  - **≥1024px (desktop)**: wheel/trackpad scroll, stage scaled to fit the
-    viewport height (Figma canvas is 800px tall).
-  - **768–1023px (tablet, incl. an unfolded foldable)**: the desktop layout,
-    scaled the same way, touch-driven with snapping.
-  - **<768px (phones, incl. a folded foldable's outer screen)**: a compact
-    mobile layout derived from the desktop design (frames at 0.66 scale),
-    scaled to fit the viewport width.
-- **Touch** follows the finger 1:1, with momentum, then settles on the nearest
-  artwork or placard. The arrows/keys step one piece at a time, or — when a
-  piece is wider than the screen — one screen-sized chunk at a time, placard
+  through the doorway into the gallery — a camera push through the door, no
+  fade. Tapping the switch again turns the lights off and returns to the
+  hallway.
+- **Sizing** — every screen shows the same 1440×800 Figma canvas at 1:1. It
+  scales *down* to fit a shorter screen but never up; on larger screens it
+  stays 1:1, centred, with walls, ceiling and floor continuing into the extra
+  space (Figma `511:385`).
+  - **Phones (<768px)**: reference frame 390×844 (Figma `511:163`); the
+    hallway is framed on the light switch. Larger phones keep that size.
+  - **Tablet / desktop (≥768px)**: reference height 800; the hallway is framed
+    on the door. Desktop uses wheel/trackpad; tablets are touch-driven.
+- **Touch** follows the finger 1:1, with momentum, then settles on the same
+  positions the arrows step to; any deliberate swipe advances at least one
+  step. The arrows/keys step one piece at a time, or — when a piece is wider
+  than the screen — one screen-sized chunk at a time, left-aligned, placard
   first.
 - **Foldables**: an unfolded inner screen (touch, ≥768px wide, ≤700px tall,
   near-square) is treated as a two-pane wall: snapping and stepping never
