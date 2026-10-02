@@ -9,7 +9,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<!-- ?v= forces a fresh copy after each change (bump it whenever styles.css
+     or script.js changes); without it a normal refresh can keep a stale
+     cached file, since the local preview server sends no cache headers. -->
+<link rel="stylesheet" href="styles.css?v=2.4">
 </head>
 <body>
 
@@ -185,6 +188,6 @@
   </div>
 </template>
 
-<script src="script.js" defer></script>
+<script src="script.js?v=2.4" defer></script>
 </body>
 </html>
